@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <ProjectSession>
+    <PathDelim Value="\"/>
+    <Version Value="9"/>
+    <BuildModes Active="Debug"/>
+    <Units Count="2">
+      <Unit0>
+        <Filename Value="oracharset.pas"/>
+        <IsPartOfProject Value="True"/>
+        <CursorPos Y="33"/>
+        <UsageCount Value="21"/>
+        <Loaded Value="True"/>
+      </Unit0>
+      <Unit1>
+        <Filename Value="..\..\..\..\..\usr\share\fpcsrc\3.0.0\packages\fcl-db\src\sqldb\oracle\oracleconnection.pp"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="1"/>
+        <TopLine Value="130"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+      </Unit1>
+    </Units>
+    <JumpHistory Count="1">
+      <Position1>
+        <Filename Value="oracharset.pas"/>
+        <Caret Line="33"/>
+      </Position1>
+    </JumpHistory>
+  </ProjectSession>
+</CONFIG>

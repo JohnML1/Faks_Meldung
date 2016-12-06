@@ -1,0 +1,85 @@
+object FormSum: TFormSum
+  Left = 592
+  Height = 575
+  Top = 242
+  Width = 639
+  Caption = 'Summen der Einnahmen'
+  ClientHeight = 575
+  ClientWidth = 639
+  SessionProperties = 'Top;Height'
+  LCLVersion = '1.7'
+  object Panel1: TPanel
+    Left = 0
+    Height = 50
+    Top = 0
+    Width = 639
+    Align = alTop
+    Caption = 'Diese Einnahmen wurden eben ermittelt'
+    Color = clWhite
+    Font.Color = clBlue
+    ParentColor = False
+    ParentFont = False
+    TabOrder = 0
+    Wordwrap = True
+  end
+  object Panel2: TPanel
+    Left = 0
+    Height = 50
+    Top = 525
+    Width = 639
+    Align = alBottom
+    ClientHeight = 50
+    ClientWidth = 639
+    TabOrder = 1
+    object BtnPrint: TButton
+      Left = 56
+      Height = 25
+      Top = 13
+      Width = 131
+      Caption = '&drucken'
+      OnClick = BtnPrintClick
+      TabOrder = 0
+    end
+    object BtnSave: TButton
+      Left = 344
+      Height = 25
+      Top = 13
+      Width = 195
+      Caption = 'in csv-Datei &speichern und öffnen'
+      OnClick = BtnSaveClick
+      TabOrder = 1
+    end
+  end
+  object StringGrid1: TStringGrid
+    Left = 0
+    Height = 475
+    Top = 50
+    Width = 639
+    Align = alClient
+    ColCount = 3
+    Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goColSizing, goDblClickAutoSize, goSmoothScroll, goFixedRowNumbering]
+    RowCount = 2
+    TabOrder = 2
+    Cells = (
+      3
+      0
+      0
+      'Zeile'
+      1
+      0
+      'Titel'
+      2
+      0
+      'Betrag'
+    )
+  end
+  object PrintDialog1: TPrintDialog
+    left = 271
+    top = 151
+  end
+  object IniPropStorage1: TIniPropStorage
+    StoredValues = <>
+    left = 156
+    top = 151
+  end
+end

@@ -15,45 +15,52 @@ object Form1: TForm1
   OnCreate = FormCreate
   OnKeyDown = FormKeyDown
   Position = poScreenCenter
-  SessionProperties = 'DirectoryEdit1.Directory;EditNoGo.Text;FileNameEdit_ORA.FileName;FilterCombo.Items;lbDatabase.Text;lbHostname.Text;lbPassword.Text;lbUserName.Text;ListBox_nicht_gefunden.Items;ListBoxKnownLines.Items;SpinEditTarifversion.Value;EditMandanten.Text'
+  SessionProperties = 'DirectoryEdit1.Directory;Edit_Max_HSTIDENT.Text;FileNameEdit_ORA.FileName;FilterCombo.Items;lbDatabase.Text;lbPassword.Text;lbUserName.Text;ListBox_nicht_gefunden.Items;ListBoxKnownLines.Items;SpinEditTarifversion.Value'
   ShowHint = True
-  LCLVersion = '1.7'
+  LCLVersion = '1.9.0.0'
   object StatusBar1: TStatusBar
     Left = 0
-    Height = 20
-    Top = 594
+    Height = 23
+    Top = 591
     Width = 1175
     AutoHint = True
     Panels = <>
   end
   object PageControl1: TPageControl
     Left = 0
-    Height = 594
+    Height = 591
     Top = 0
     Width = 1175
-    ActivePage = TabConfig
+    ActivePage = TabDaten
     Align = alClient
     Font.CharSet = OEM_CHARSET
     ParentFont = False
-    TabIndex = 1
+    TabIndex = 0
     TabOrder = 0
     object TabDaten: TTabSheet
       Caption = 'Daten'
-      ClientHeight = 567
+      ClientHeight = 562
       ClientWidth = 1167
       object Panel2: TPanel
         Left = 0
-        Height = 32
-        Top = 535
+        Height = 40
+        Top = 522
         Width = 1167
         Align = alBottom
-        ClientHeight = 32
+        ClientHeight = 40
         ClientWidth = 1167
         TabOrder = 0
+        object Shape1: TShape
+          Left = 558
+          Height = 33
+          Top = 4
+          Width = 137
+          Shape = stRoundRect
+        end
         object DBNavigator2: TDBNavigator
           Left = 1
           Height = 25
-          Top = 1
+          Top = 9
           Width = 175
           BevelOuter = bvNone
           ChildSizing.EnlargeHorizontal = crsScaleChilds
@@ -70,54 +77,56 @@ object Form1: TForm1
           VisibleButtons = [nbFirst, nbPrior, nbNext, nbLast, nbRefresh]
         end
         object DateEditVon: TDateEdit
-          Left = 248
-          Height = 22
-          Hint = 'Doppelklick um das Datum einzustellen'
-          Top = 1
+          Left = 257
+          Height = 24
+          Hint = 'Datum bitte mit Schaltfläche einstellen'
+          Top = 9
           Width = 103
-          CalendarDisplaySettings = [dsShowHeadings, dsShowDayNames]
+          CalendarDisplaySettings = [dsShowHeadings, dsShowDayNames, dsShowWeekNumbers]
           OnAcceptDate = DateEditVonAcceptDate
-          DateOrder = doDMY
+          DateOrder = doNone
+          ButtonHint = 'Datum bitte mit Schaltfläche einstellen'
           ButtonWidth = 23
+          DirectInput = False
           NumGlyphs = 1
-          MaxLength = 10
+          MaxLength = 0
           TabOrder = 1
-          Text = '  .  .    '
         end
         object DateEditBis: TDateEdit
-          Left = 413
-          Height = 22
-          Hint = 'Doppelklick um das Datum einzustellen'
-          Top = 1
+          Left = 442
+          Height = 24
+          Hint = 'Datum bitte mit Schaltfläche einstellen'
+          Top = 9
           Width = 103
-          CalendarDisplaySettings = [dsShowHeadings, dsShowDayNames]
+          CalendarDisplaySettings = [dsShowHeadings, dsShowDayNames, dsShowWeekNumbers]
           OnAcceptDate = DateEditVonAcceptDate
-          DateOrder = doDMY
+          DateOrder = doNone
+          ButtonHint = 'Datum bitte mit Schaltfläche einstellen'
           ButtonWidth = 23
+          DirectInput = False
           NumGlyphs = 1
-          MaxLength = 10
+          MaxLength = 0
           TabOrder = 2
-          Text = '  .  .    '
         end
         object Label1: TLabel
           Left = 187
-          Height = 14
-          Top = 5
-          Width = 56
+          Height = 16
+          Top = 9
+          Width = 69
           Caption = 'Von Datum:'
           ParentColor = False
         end
         object Label2: TLabel
-          Left = 362
-          Height = 14
-          Top = 5
-          Width = 51
+          Left = 376
+          Height = 16
+          Top = 9
+          Width = 65
           Caption = 'Bis Datum:'
           ParentColor = False
         end
         object ProgressBar1: TProgressBar
-          Left = 787
-          Height = 30
+          Left = 783
+          Height = 38
           Top = 1
           Width = 128
           Align = alRight
@@ -126,51 +135,63 @@ object Form1: TForm1
         end
         object FilterCombo: TComboBox
           Left = 920
-          Height = 22
-          Hint = '|Filter durch Eingabe-Taste aktivieren'
+          Height = 24
+          Hint = '|Filter durch Eingabe-Taste aktivieren -> rot=Filter ist gesetzt'
           Top = 1
           Width = 246
           Align = alRight
+          AutoCompleteText = [cbactSearchAscending]
+          AutoDropDown = True
           Font.CharSet = OEM_CHARSET
-          ItemHeight = 14
+          ItemHeight = 16
           OnKeyDown = FilterComboKeyDown
           ParentFont = False
           TabOrder = 4
         end
         object Splitter2: TSplitter
-          Left = 915
-          Height = 30
+          Left = 911
+          Height = 38
           Top = 1
-          Width = 5
+          Width = 9
           Align = alRight
+          Beveled = True
           Color = clSkyBlue
           ParentColor = False
           ResizeAnchor = akRight
         end
         object SpinEdit1: TSpinEdit
-          Left = 519
-          Height = 22
+          Left = 566
+          Height = 24
           Hint = 'Monate vor oder zurück'
-          Top = 4
+          Top = 9
           Width = 42
           MinValue = -100
           OnChange = SpinEdit1Change
           TabOrder = 6
         end
         object CbincMonth: TToggleBox
-          Left = 568
-          Height = 18
+          Left = 614
+          Height = 24
           Hint = 'die links eingestellten Monate für den Auswahlzeitraum übernehmen'
-          Top = 4
-          Width = 66
-          Caption = 'aktivieren'
+          Top = 8
+          Width = 74
+          Caption = '&aktivieren'
           OnClick = CbincMonthClick
           TabOrder = 7
+        end
+        object lbRecordCount: TLabel
+          Left = 920
+          Height = 16
+          Top = 24
+          Width = 85
+          Align = alCustom
+          Caption = 'lbRecordCount'
+          ParentColor = False
         end
       end
       object DBGridFaks: TDBGrid
         Left = 0
-        Height = 535
+        Height = 522
         Top = 0
         Width = 1167
         Align = alClient
@@ -188,7 +209,7 @@ object Form1: TForm1
     end
     object TabConfig: TTabSheet
       Caption = 'Einstellungen'
-      ClientHeight = 567
+      ClientHeight = 562
       ClientWidth = 1167
       object Panel1: TPanel
         Left = 0
@@ -214,9 +235,9 @@ object Form1: TForm1
         inline Memo1: TSynEdit
           Left = 1
           Height = 173
-          Hint = 'Die SQL-History enthält die ausgeführten SQL-Befehle. Drücken Sie Strg + F8, um durch die Liste zu schalten. Klicken Sie auf ''exec sql'', um den angezeigten SQL-Code auszuführen'
+          Hint = 'Die SQL-History enthält die ausgeführten SQL-Befehle. '#13#10'Klicken Sie rechts auf Pfeil hoch/runter, um durch die Liste zu schalten.'#13#10'Klicken Sie auf ''exec sql'', um den angezeigten SQL-Code auszuführen.'#13#10'Mehr Befehle auch über Rechtsklick im SQL-Editor.'
           Top = 1
-          Width = 1090
+          Width = 1073
           Align = alClient
           Font.Height = -13
           Font.Name = 'Courier New'
@@ -715,14 +736,28 @@ object Form1: TForm1
             end
           end
         end
+        object UpDown1: TUpDown
+          Left = 1074
+          Height = 173
+          Hint = 'SQL-History durchblättern'
+          Top = 1
+          Width = 17
+          Align = alRight
+          Min = 0
+          OnClick = UpDown1Click
+          Position = 0
+          TabOrder = 2
+          Wrap = False
+        end
       end
       object Splitter1: TSplitter
         Cursor = crVSplit
         Left = 0
-        Height = 5
+        Height = 11
         Top = 175
         Width = 1167
         Align = alTop
+        Beveled = True
         Color = clRed
         ParentColor = False
         ResizeAnchor = akTop
@@ -730,53 +765,38 @@ object Form1: TForm1
       object Panel3: TPanel
         Left = 0
         Height = 56
-        Top = 180
+        Top = 186
         Width = 1167
         Align = alTop
         ClientHeight = 56
         ClientWidth = 1167
+        Color = clBtnFace
+        ParentColor = False
         TabOrder = 2
-        object lbHostname: TLabeledEdit
-          Left = 59
-          Height = 22
-          Hint = 'hlbst02'
-          Top = 26
-          Width = 130
-          EditLabel.AnchorSideLeft.Control = lbHostname
-          EditLabel.AnchorSideRight.Control = lbHostname
-          EditLabel.AnchorSideRight.Side = asrBottom
-          EditLabel.AnchorSideBottom.Control = lbHostname
-          EditLabel.Left = 59
-          EditLabel.Height = 14
-          EditLabel.Top = 9
-          EditLabel.Width = 130
-          EditLabel.Caption = 'Hostname:'
-          EditLabel.ParentColor = False
-          TabOrder = 0
-          TextHint = 'hlbst02'
-        end
         object lbDatabase: TLabeledEdit
-          Left = 197
-          Height = 22
+          Left = 59
+          Height = 24
           Hint = 'vasp'
           Top = 26
-          Width = 130
+          Width = 268
           EditLabel.AnchorSideLeft.Control = lbDatabase
           EditLabel.AnchorSideRight.Control = lbDatabase
           EditLabel.AnchorSideRight.Side = asrBottom
           EditLabel.AnchorSideBottom.Control = lbDatabase
-          EditLabel.Left = 197
-          EditLabel.Height = 14
-          EditLabel.Top = 9
-          EditLabel.Width = 130
-          EditLabel.Caption = 'Database:'
+          EditLabel.Left = 59
+          EditLabel.Height = 16
+          EditLabel.Hint = 'Server und port und service-Name der Oracle Database'
+          EditLabel.Top = 7
+          EditLabel.Width = 268
+          EditLabel.Caption = 'Connection-string: server:port/vasp'
           EditLabel.ParentColor = False
-          TabOrder = 1
-          TextHint = 'vasp'
+          TabOrder = 0
+          Text = 'hlbst02:1521/vasp'
+          TextHint = 'hlbst02:1521/vasp'
         end
         object lbPassword: TLabeledEdit
-          Left = 526
-          Height = 22
+          Left = 485
+          Height = 24
           Hint = 'sysadm'
           Top = 25
           Width = 130
@@ -784,18 +804,19 @@ object Form1: TForm1
           EditLabel.AnchorSideRight.Control = lbPassword
           EditLabel.AnchorSideRight.Side = asrBottom
           EditLabel.AnchorSideBottom.Control = lbPassword
-          EditLabel.Left = 526
-          EditLabel.Height = 14
-          EditLabel.Top = 8
+          EditLabel.Left = 485
+          EditLabel.Height = 16
+          EditLabel.Top = 6
           EditLabel.Width = 130
           EditLabel.Caption = 'Passwort:'
           EditLabel.ParentColor = False
-          TabOrder = 3
+          TabOrder = 2
+          Text = 'sysadm'
           TextHint = 'sysadm'
         end
         object lbUserName: TLabeledEdit
-          Left = 384
-          Height = 22
+          Left = 340
+          Height = 24
           Hint = 'sysadm'
           Top = 25
           Width = 130
@@ -803,236 +824,182 @@ object Form1: TForm1
           EditLabel.AnchorSideRight.Control = lbUserName
           EditLabel.AnchorSideRight.Side = asrBottom
           EditLabel.AnchorSideBottom.Control = lbUserName
-          EditLabel.Left = 384
-          EditLabel.Height = 14
-          EditLabel.Top = 8
+          EditLabel.Left = 340
+          EditLabel.Height = 16
+          EditLabel.Top = 6
           EditLabel.Width = 130
           EditLabel.Caption = 'Username:'
           EditLabel.ParentColor = False
-          TabOrder = 2
+          TabOrder = 1
+          Text = 'sysadm'
           TextHint = 'sysadm'
         end
         object BtnConnect: TButton
-          Left = 1080
+          Left = 768
           Height = 25
           Hint = 'mit der Datenbank laut Hostname ... verbinden'
-          Top = 22
+          Top = 21
           Width = 75
           Caption = 'verbinden'
           OnClick = FormActivate
-          TabOrder = 4
+          TabOrder = 3
         end
         object Mem: TEdit
           Left = 1
-          Height = 22
+          Height = 24
           Top = 8
           Width = 46
           HideSelection = False
           ParentBidiMode = False
           ParentShowHint = False
-          TabOrder = 5
+          TabOrder = 4
         end
-        object EditMandanten: TLabeledEdit
-          Left = 666
-          Height = 22
-          Hint = 'Kommagetrennte Zahlen eingeben'
-          Top = 25
-          Width = 148
-          EditLabel.AnchorSideLeft.Control = EditMandanten
-          EditLabel.AnchorSideRight.Control = EditMandanten
-          EditLabel.AnchorSideRight.Side = asrBottom
-          EditLabel.AnchorSideBottom.Control = EditMandanten
-          EditLabel.Left = 666
-          EditLabel.Height = 14
-          EditLabel.Top = 8
-          EditLabel.Width = 148
-          EditLabel.Caption = 'Daten von diesen Mandanten:'
-          EditLabel.ParentColor = False
-          TabOrder = 6
-          Text = '0,1,5'
-          TextHint = '0,1,5'
+        object Label5: TLabel
+          Left = 631
+          Height = 16
+          Top = 5
+          Width = 119
+          Caption = 'ab RMV-Tarifversion:'
+          ParentColor = False
+        end
+        object SpinEditTarifversion: TSpinEdit
+          Left = 630
+          Height = 24
+          Hint = '|die aktuelle Tarifversion'
+          Top = 22
+          Width = 50
+          OnEditingDone = SpinEditTarifversionEditingDone
+          TabOrder = 5
+          Value = 35
         end
       end
       object Panel5: TPanel
         Left = 0
-        Height = 50
-        Top = 236
+        Height = 54
+        Top = 242
         Width = 1167
         Align = alTop
-        ClientHeight = 50
+        ClientHeight = 54
         ClientWidth = 1167
+        Color = clBtnFace
+        ParentColor = False
         TabOrder = 3
-        object EditNoGo: TLabeledEdit
-          Left = 59
-          Height = 22
-          Top = 20
-          Width = 525
-          EditLabel.AnchorSideLeft.Control = EditNoGo
-          EditLabel.AnchorSideRight.Control = EditNoGo
-          EditLabel.AnchorSideRight.Side = asrBottom
-          EditLabel.AnchorSideBottom.Control = EditNoGo
-          EditLabel.Left = 59
-          EditLabel.Height = 14
-          EditLabel.Top = 3
-          EditLabel.Width = 525
-          EditLabel.Caption = 'Diese Linien NICHT berücksichtigen, Neustart nach Änderung ( Zahl1, Zahl2   durch Komma getrennt):'
+        object Edit_Max_HSTIDENT: TLabeledEdit
+          Left = 168
+          Height = 24
+          Hint = '|Im DBase Export Anzahl Stellen kürzen auf:'
+          Top = 22
+          Width = 33
+          Alignment = taRightJustify
+          EditLabel.AnchorSideTop.Control = Edit_Max_HSTIDENT
+          EditLabel.AnchorSideTop.Side = asrCenter
+          EditLabel.AnchorSideRight.Control = Edit_Max_HSTIDENT
+          EditLabel.AnchorSideBottom.Control = Edit_Max_HSTIDENT
+          EditLabel.AnchorSideBottom.Side = asrBottom
+          EditLabel.Left = 8
+          EditLabel.Height = 16
+          EditLabel.Top = 26
+          EditLabel.Width = 157
+          EditLabel.Caption = 'StartHaltestelle kürzen auf:'
           EditLabel.ParentColor = False
+          LabelPosition = lpLeft
           TabOrder = 0
+          Text = '5'
         end
-        object cbKeinGruenberg: TCheckBox
-          Left = 596
-          Height = 18
-          Hint = '|Vorgabe für auszuschliessende Linien'
-          Top = 5
-          Width = 96
-          Caption = 'Kein Gruenberg'
-          OnChange = cbKeinGruenbergChange
-          TabOrder = 1
-        end
-        object cbKeinGruenberg_kein_Wetterau: TCheckBox
-          Left = 596
-          Height = 18
-          Hint = '|Vorgabe für auszuschliessende Linien'
-          Top = 24
-          Width = 168
-          Caption = 'Kein Gruenberg, kein Wetterau'
-          OnChange = cbKeinGruenberg_kein_WetterauChange
-          TabOrder = 2
+        object Label4: TLabel
+          Left = 1
+          Height = 16
+          Top = 1
+          Width = 1165
+          Align = alTop
+          Caption = ' In der Dbase-Exporttabelle steht im Feld VDTNR=999+Gerätenummer aus Spalte MDEIDINTERN, GNR=BELEGNR, GABDATUM=DatumFahrt, ZDEDATUM=Buchungsdatum, ZDEZEIT=BuchungsZeit, RID=RID'
+          ParentColor = False
         end
       end
       object Panel4: TPanel
         Left = 0
         Height = 58
-        Top = 286
+        Top = 296
         Width = 1167
         Align = alTop
         ClientHeight = 58
         ClientWidth = 1167
+        Color = clBtnFace
+        ParentColor = False
         TabOrder = 4
         object DirectoryEdit1: TDirectoryEdit
           Left = 8
-          Height = 22
+          Height = 24
           Hint = '|nach Excel exportierte Dateien werden in dieses Verzeichnis geschrieben'
-          Top = 16
+          Top = 20
           Width = 715
+          Directory = 'F:\AMISdata\Monat\Monatsmld\FAKS_Auswertungen'
           RootDir = 'F:\AMISdata\Monat\Monatsmld\FAKS_Auswertungen'
           ShowHidden = False
           ButtonWidth = 23
           NumGlyphs = 1
           MaxLength = 0
           TabOrder = 0
+          Text = 'F:\AMISdata\Monat\Monatsmld\FAKS_Auswertungen'
           TextHint = 'F:\AMISdata\Monat\Monatsmld\FAKS_Auswertungen'
         end
         object Label3: TLabel
-          Left = 59
-          Height = 14
+          Left = 8
+          Height = 16
           Top = 3
-          Width = 193
+          Width = 230
           Caption = 'Exportverzeichnis für die Excel-Dateien:'
-          ParentColor = False
-        end
-        object SpinEditTarifversion: TSpinEdit
-          Left = 739
-          Height = 22
-          Hint = '|die aktuelle Tarifversion'
-          Top = 16
-          Width = 50
-          OnEditingDone = SpinEditTarifversionEditingDone
-          TabOrder = 1
-          Value = 35
-        end
-        object Label5: TLabel
-          Left = 740
-          Height = 14
-          Top = 2
-          Width = 88
-          Caption = 'RMV-Tarifversion:'
           ParentColor = False
         end
       end
       object Panel8: TPanel
         Left = 0
-        Height = 60
-        Top = 344
+        Height = 0
+        Top = 354
         Width = 1167
         Align = alTop
         Alignment = taLeftJustify
+        AutoSize = True
         Caption = '   In der Dbase-Exporttabelle steht im Feld VDTNR=999+Gerätenummer aus Spalte MDEIDINTERN, GNR=BELEGNR, GABDATUM=DatumFahrt, ZDEDATUM=Buchungsdatum, ZDEZEIT=BuchungsZeit'
-        ClientHeight = 60
-        ClientWidth = 1167
+        Color = clBtnFace
+        ParentColor = False
         TabOrder = 5
-        object ListBox_tnsnames_ora: TListBox
-          Left = 960
-          Height = 48
-          Top = 8
-          Width = 199
-          Items.Strings = (
-            '# tnsnames.ora Network Configuration File: D:\oracle\product\10.2.0\db_1\network\admin\tnsnames.ora'
-            '# Generated by Oracle configuration tools.'
-            ''
-            'AMIS2000 ='
-            '  (DESCRIPTION ='
-            '    (ADDRESS = (PROTOCOL = TCP)(HOST = HLBVED01.hlb.local)(PORT = 1521))'
-            '    (CONNECT_DATA ='
-            '      (SERVER = DEDICATED)'
-            '      (SERVICE_NAME = amis2000)'
-            '    )'
-            '  )'
-            ''
-            ''
-            '  '
-            'VASP ='
-            '  (DESCRIPTION ='
-            '    (ADDRESS_LIST ='
-            '      (ADDRESS = (PROTOCOL = TCP)(HOST = hlbst02.hlb.local)(PORT = 1521))'
-            '    )'
-            '    (CONNECT_DATA ='
-            '      (SERVICE_NAME = VASP)'
-            '    )'
-            '  )'
-            '  '
-            ''
-          )
-          ItemHeight = 14
-          ScrollWidth = 671
-          TabOrder = 0
-          Visible = False
-        end
       end
       object Panel7: TPanel
         Left = 0
-        Height = 163
-        Top = 404
+        Height = 208
+        Top = 354
         Width = 1167
         Align = alClient
-        ClientHeight = 163
+        ClientHeight = 208
         ClientWidth = 1167
+        Color = clBtnFace
         Font.CharSet = OEM_CHARSET
         Font.Quality = fqCleartype
         Font.Style = [fsBold]
         ParentColor = False
         ParentFont = False
         TabOrder = 6
-        OnDblClick = Panel7DblClick
         object GroupBox1: TGroupBox
           Left = 1
-          Height = 161
+          Height = 206
           Top = 1
-          Width = 251
+          Width = 318
           Align = alLeft
-          Caption = 'bekannte Linien( Entf. um zu löschen):'
-          ClientHeight = 142
-          ClientWidth = 247
+          AutoSize = True
+          Caption = 'bekannte Linien( Entf. um zu löschen, Rechtsklick):'
+          ClientHeight = 185
+          ClientWidth = 314
           Font.CharSet = OEM_CHARSET
           Font.Quality = fqCleartype
           ParentFont = False
           TabOrder = 0
           object ListBoxKnownLines: TListBox
             Left = 0
-            Height = 142
+            Height = 185
             Hint = 'Siehe auch Rechtsklick für Befehle'
             Top = 0
-            Width = 247
+            Width = 314
             Align = alClient
             ItemHeight = 0
             OnKeyDown = ListBoxKnownLinesKeyDown
@@ -1042,27 +1009,29 @@ object Form1: TForm1
           end
         end
         object GroupBox2: TGroupBox
-          Left = 252
-          Height = 161
+          Left = 319
+          Height = 206
           Top = 1
-          Width = 332
+          Width = 363
           Align = alLeft
+          AutoSize = True
           Caption = 'Beim Export nach AmisData umzubenennende Linien:'
-          ClientHeight = 142
-          ClientWidth = 328
+          ClientHeight = 185
+          ClientWidth = 359
           TabOrder = 1
           object GridReplaceLineNumber: TStringGrid
             Left = 0
-            Height = 116
-            Hint = '|In DBase Datei statt Spalte Linie  Spalte "ersetze Linie mit" schreiben. Siehe auch die Datei ''ErsetzungLinienNummern.csv'''
+            Height = 157
+            Hint = '|In DBase Datei statt Spalte " Linie"  Spalte  "ersetze Linie mit" schreiben. Siehe auch die Datei "FAKS_Meldung_ErsetzungLinienNummern.csv"'
             Top = 0
-            Width = 328
+            Width = 359
             Align = alClient
             AlternateColor = clMoneyGreen
             AutoAdvance = aaRightDown
             ColCount = 3
             FixedCols = 0
             Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goColSizing, goEditing, goAutoAddRows, goDblClickAutoSize, goSmoothScroll, goCellHints]
+            PopupMenu = PopupGridReplace
             RowCount = 2
             TabOrder = 0
             TitleFont.CharSet = OEM_CHARSET
@@ -1088,35 +1057,48 @@ object Form1: TForm1
           end
           object Panel6: TPanel
             Left = 0
-            Height = 26
-            Top = 116
-            Width = 328
+            Height = 28
+            Top = 157
+            Width = 359
             Align = alBottom
             AutoSize = True
-            ClientHeight = 26
-            ClientWidth = 328
+            ClientHeight = 28
+            ClientWidth = 359
             TabOrder = 1
             object BtnAddLine: TButton
+              AnchorSideTop.Side = asrCenter
               Left = 1
-              Height = 24
+              Height = 26
               Hint = '|ergänzt die Tabelle mit einer leeren Zeile'
               Top = 1
-              Width = 152
-              Align = alLeft
+              Width = 132
+              AutoSize = True
               Caption = 'Zeile hinzufügen'
               OnClick = BtnAddLineClick
               TabOrder = 0
             end
             object BtnDelLine: TButton
-              Left = 175
-              Height = 24
-              Hint = '|ergänzt die Tabelle mit einer leeren Zeile'
+              AnchorSideTop.Side = asrCenter
+              Left = 124
+              Height = 26
+              Hint = '|aktuelle Zeile löschen'
               Top = 1
-              Width = 152
-              Align = alRight
+              Width = 102
               Caption = 'Zeile löschen'
               OnClick = BtnDelLineClick
               TabOrder = 1
+            end
+            object BtnSearch: TButton
+              AnchorSideTop.Side = asrCenter
+              Left = 223
+              Height = 26
+              Hint = '|in aktueller Spalte der Liste suchen'
+              Top = 1
+              Width = 132
+              AutoSize = True
+              Caption = 'in Spalte suchen'
+              OnClick = BtnSearchClick
+              TabOrder = 2
             end
           end
         end
@@ -1139,9 +1121,13 @@ object Form1: TForm1
         Name = 'SavePath'
         OnSave = IniPropStorage1StoredValues1Save
         OnRestore = IniPropStorage1StoredValues1Restore
+      end    
+      item
+        Name = 'CheckLinie'
+        OnRestore = IniPropStorage1StoredValues2Restore
       end>
     OnRestoreProperties = IniPropStorage1RestoreProperties
-    left = 83
+    left = 48
     top = 106
   end
   object DataSource2: TDataSource
@@ -1150,6 +1136,7 @@ object Form1: TForm1
     top = 48
   end
   object PopupGrid: TPopupMenu
+    OnClose = PopupGridClose
     left = 285
     top = 106
     object DBase_export: TMenuItem
@@ -1208,38 +1195,72 @@ object Form1: TForm1
       Hint = '|prüfe welche Linien in den Daten existieren'
       OnClick = CheckLinieClick
     end
-    object OpenLogFile: TMenuItem
-      Caption = 'Oracle LogFile ansehen'
-      ShortCut = 16460
-      OnClick = OpenLogFileClick
+    object MnGroupValues: TMenuItem
+      Caption = 'Zeige Liste der Werte in dieser Spalte'
+      Hint = '|zeige eine sortierte Liste der Einträge in aktueller Spalte'
+      ShortCut = 16455
+      OnClick = MnGroupValuesClick
     end
     object EventLog_anzeigen: TMenuItem
       Caption = 'Dbase-Export Eventlog anzeigen'
       Hint = '|Anzahl Datensaätze und Summe Splate Preis laut Protokolle anzeigen'
       OnClick = EventLog_anzeigenClick
     end
+    object OpenLogFile: TMenuItem
+      Caption = 'Oracle LogFile ansehen'
+      ShortCut = 16460
+      OnClick = OpenLogFileClick
+    end
     object MenuItem1: TMenuItem
       Caption = 'Exportverzeichnis im Explorer öffnen'
       ShortCut = 49221
       OnClick = MenuItem1Click
     end
-    object RID_as_Filter: TMenuItem
-      Caption = 'RID als Filterausdruck bilden'
-      OnClick = RID_as_FilterClick
+    object MnFixColumn: TMenuItem
+      Caption = 'Spalte fixieren/aufheben'
+      Hint = 'gewählte Spalte fixieren bzw. Fixierung aufheben'
+      OnClick = MnFixColumnClick
     end
-    object LookupStornos: TMenuItem
-      Caption = 'Stornos suchen'
-      OnClick = LookupStornosClick
-    end
-    object MnSumColumn: TMenuItem
-      Caption = 'Summe der aktuellen Spalte'
-      Hint = '|Summe in der aktuellen Spalte wird gebildet'
-      OnClick = MnSumColumnClick
-    end
-    object MnMarkExported: TMenuItem
-      Caption = 'Exportmarkierung in Spalte VertragsNr neu setzen'
-      Hint = '|Markierung in Spalte VertragsNr setzen'
-      OnClick = MnMarkExportedClick
+    object MnMore: TMenuItem
+      Caption = 'Mehr ...'
+      object RID_as_Filter: TMenuItem
+        Caption = 'RID als Filterausdruck bilden'
+        OnClick = RID_as_FilterClick
+      end
+      object LookupStornos: TMenuItem
+        Caption = 'Stornos suchen'
+        OnClick = LookupStornosClick
+      end
+      object MnManuelleBuchungen: TMenuItem
+        Caption = 'Manuelle Buchungen anzeigen'
+        Hint = '|filtert manuell eingegebene Daten'
+        OnClick = MnManuelleBuchungenClick
+      end
+      object MnSumColumn: TMenuItem
+        Caption = 'Summe der aktuellen Spalte'
+        Hint = '|Summe in der aktuellen Spalte wird gebildet'
+        OnClick = MnSumColumnClick
+      end
+      object MnMarkExported: TMenuItem
+        Caption = 'Exportmarkierung in Spalte VertragsNr neu setzen'
+        Hint = '|Markierung in Spalte VertragsNr setzen'
+        OnClick = MnMarkExportedClick
+      end
+      object UpdateElgebaLinienNr: TMenuItem
+        Caption = 'Elgega LinienNr aktualisieren'
+        Hint = '|LinienNr in Elgeba Dbase Datei aktualisieren'
+        OnClick = UpdateElgebaLinienNrClick
+      end
+      object MnAnrufsammeltaxis: TMenuItem
+        Caption = 'Anrufsammeltaxi HTK und MTK'
+        Hint = '|nur Anrufsammeltaxis HTK und MTK anzeigen'
+        OnClick = MnAnrufsammeltaxisClick
+      end
+      object MnShowRecordCount: TMenuItem
+        Caption = 'Zeige Anzahl der Datensätze'
+        Hint = '|Wieviel Zeilen nethält die Tabelle'
+        OnClick = MnShowRecordCountClick
+      end
     end
   end
   object SynSQLSyn1: TSynSQLSyn
@@ -1264,11 +1285,11 @@ object Form1: TForm1
     WindowTop = 0
     WindowWidth = 0
     FillAttribute = 0
-    left = 471
+    left = 464
     top = 106
   end
   object PopupSQL: TPopupMenu
-    left = 536
+    left = 544
     top = 106
     object SaveToFile: TMenuItem
       Caption = 'SQL Code in Datei speichern'
@@ -1282,23 +1303,21 @@ object Form1: TForm1
       ShortCut = 49228
       OnClick = SQLLoadClick
     end
-    object SQL_history_lode: TMenuItem
-      Caption = 'SQL Code aus History laden'
-      Hint = '|gerade ausgeführte Abfrage noch mal laden'
-      ShortCut = 16503
-      OnClick = SQL_history_lodeClick
+    object MnFieldlist: TMenuItem
+      Caption = 'Feldliste anzeigen'
+      OnClick = MnFieldlistClick
     end
   end
   object SaveDialog1: TSaveDialog
     DefaultExt = '.sql'
     Filter = 'sql-Code ( *.sql)|*.sql|DBase(*.dbf)|*.dbf|Alle Dateien (*.*)|*.*'
     Options = [ofOverwritePrompt, ofPathMustExist, ofEnableSizing, ofViewDetail]
-    left = 599
+    left = 616
     top = 106
   end
   object OpenDialog1: TOpenDialog
     Filter = 'SQL (*.sql)|*.sql|DBase(*.dbf)|*.dbf|Alle Dateien (*.*)|*.*'
-    left = 662
+    left = 704
     top = 106
   end
   object Dbf1: TDbf
@@ -1588,7 +1607,7 @@ object Form1: TForm1
         Size = 30
       end>
     FilterOptions = []
-    left = 724
+    left = 784
     top = 106
     object Dbf1LFDNR: TFloatField
       DisplayWidth = 10
@@ -2314,10 +2333,10 @@ object Form1: TForm1
     SQLHourGlass = True
     HostName = 'hlbst02.hlb.local'
     Port = 1521
-    Database = 'vasp'
+    Database = 'hlbst02:1521/vasp'
     User = 'sysadm'
     Password = 'sysadm'
-    Protocol = 'oracle'
+    Protocol = 'oracle-9i'
     left = 181
     top = 48
   end
@@ -2347,7 +2366,7 @@ object Form1: TForm1
       '''01.02.2016''))'
     )
     Params = <>
-    Options = [doOemTranslate, doCalcDefaults, doSmartOpen]
+    Options = [doOemTranslate, doCalcDefaults, doSmartOpen, doPreferPrepared]
     left = 285
     top = 50
   end
@@ -2366,12 +2385,12 @@ object Form1: TForm1
   object UniqueInstance1: TUniqueInstance
     Enabled = True
     OnOtherInstance = UniqueInstance1OtherInstance
-    left = 83
-    top = 184
+    left = 896
+    top = 50
   end
   object ImageList1: TImageList
-    left = 264
-    top = 184
+    left = 856
+    top = 112
     Bitmap = {
       4C69020000001000000010000000FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
       FFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFFF
@@ -2450,12 +2469,12 @@ object Form1: TForm1
     CustomLogType = 0
     EventIDOffset = 0
     Paused = False
-    left = 368
-    top = 184
+    left = 816
+    top = 50
   end
   object PopupLinien: TPopupMenu
-    left = 184
-    top = 184
+    left = 96
+    top = 472
     object DeleteSelected: TMenuItem
       Caption = 'Markierte Linie löschen'
       Hint = '|löscht die markierte Linie aus der Liste'
@@ -2464,6 +2483,16 @@ object Form1: TForm1
     object MenuAddLinie: TMenuItem
       Caption = 'Linie hinzufügen'
       OnClick = MenuAddLinieClick
+    end
+    object MnSucheLinien: TMenuItem
+      Caption = 'suchen'
+      Hint = '|LinienNummer in Liste suchen'
+      OnClick = MnSucheLinienClick
+    end
+    object MNCheckLinieJeMandant: TMenuItem
+      Caption = 'Linien je Mandant prüfen'
+      Hint = '|prüfe auf doppelte LinienNummern'
+      OnClick = MNCheckLinieJeMandantClick
     end
   end
   object ZCheckFields: TZReadOnlyQuery
@@ -2491,7 +2520,9 @@ object Form1: TForm1
         Name = 'RID'
         ParamType = ptUnknown
       end>
-    left = 656
+    WhereMode = wmWhereAll
+    Options = [doOemTranslate, doCalcDefaults, doPreferPrepared, doDontSortOnPost]
+    left = 672
     top = 50
     ParamData = <    
       item
@@ -2504,5 +2535,13 @@ object Form1: TForm1
         Name = 'RID'
         ParamType = ptUnknown
       end>
+  end
+  object PopupGridReplace: TPopupMenu
+    left = 384
+    top = 497
+    object MnSearch: TMenuItem
+      Caption = '&suchen'
+      OnClick = MnSearchClick
+    end
   end
 end

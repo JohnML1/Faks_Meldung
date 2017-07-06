@@ -9,10 +9,6 @@
       <Title Value="FAKS_Meldung"/>
       <ResourceType Value="res"/>
       <UseXPManifest Value="True"/>
-      <XPManifest>
-        <TextName Value="CompanyName.ProductName.AppName"/>
-        <TextDesc Value="Your application description."/>
-      </XPManifest>
       <Icon Value="0"/>
     </General>
     <i18n>
@@ -22,9 +18,10 @@
       <UseVersionInfo Value="True"/>
       <AutoIncrementBuild Value="True"/>
       <MajorVersionNr Value="1"/>
-      <BuildNr Value="1563"/>
+      <RevisionNr Value="1"/>
+      <BuildNr Value="301"/>
       <Language Value="0407"/>
-      <StringTable Comments="schönes Wetter heute!!!" CompanyName="HLB" FileDescription="FAKS-Daten in Excel-Datei exportieren" ProductVersion="1.0.0.1218"/>
+      <StringTable Comments="schönes Wetter heute!!!" CompanyName="HLB" FileDescription="FAKS-Daten in Excel-Datei/Dbase exportieren" ProductVersion="1.0.1.2"/>
     </VersionInfo>
     <BuildModes Count="3">
       <Item1 Name="Default" Default="True"/>
@@ -104,39 +101,45 @@
         <FormatVersion Value="1"/>
       </local>
     </RunParams>
-    <RequiredPackages Count="10">
+    <RequiredPackages Count="12">
       <Item1>
-        <PackageName Value="Printer4Lazarus"/>
+        <PackageName Value="laz_fpspreadsheetexport_visual"/>
       </Item1>
       <Item2>
-        <PackageName Value="mycomps"/>
+        <PackageName Value="lazdbexport"/>
       </Item2>
       <Item3>
-        <PackageName Value="MemDSLaz"/>
+        <PackageName Value="Printer4Lazarus"/>
       </Item3>
       <Item4>
-        <PackageName Value="RunTimeTypeInfoControls"/>
+        <PackageName Value="mycomps"/>
       </Item4>
       <Item5>
-        <PackageName Value="uniqueinstance_package"/>
+        <PackageName Value="MemDSLaz"/>
       </Item5>
       <Item6>
-        <PackageName Value="zcomponent"/>
+        <PackageName Value="RunTimeTypeInfoControls"/>
       </Item6>
       <Item7>
-        <PackageName Value="DBFLaz"/>
+        <PackageName Value="uniqueinstance_package"/>
       </Item7>
       <Item8>
-        <PackageName Value="SynEdit"/>
+        <PackageName Value="zcomponent"/>
       </Item8>
       <Item9>
-        <PackageName Value="LCL"/>
+        <PackageName Value="DBFLaz"/>
       </Item9>
       <Item10>
-        <PackageName Value="FCL"/>
+        <PackageName Value="SynEdit"/>
       </Item10>
+      <Item11>
+        <PackageName Value="LCL"/>
+      </Item11>
+      <Item12>
+        <PackageName Value="FCL"/>
+      </Item12>
     </RequiredPackages>
-    <Units Count="3">
+    <Units Count="4">
       <Unit0>
         <Filename Value="FAKS_Meldung.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -156,6 +159,14 @@
         <HasResources Value="True"/>
         <ResourceBaseClass Value="Form"/>
       </Unit2>
+      <Unit3>
+        <Filename Value="unit2.pas"/>
+        <IsPartOfProject Value="True"/>
+        <ComponentName Value="Form2"/>
+        <HasResources Value="True"/>
+        <ResourceBaseClass Value="Form"/>
+        <UnitName Value="Unit2"/>
+      </Unit3>
     </Units>
   </ProjectOptions>
   <CompilerOptions>

@@ -85,14 +85,14 @@ http://forum.lazarus.freepascal.org/index.php/topic,20305.msg117063.html#msg1170
 interface
 
 uses
-  locale_de,  my_utils, LCLIntf, UniqueInstance, Classes, SysUtils, DB, dbf,
-  FileUtil, SynHighlighterSQL, SynEdit, RTTIGrids,
-  LResources, Forms, Controls, Graphics, Dialogs, ComCtrls, Menus,
-  IniPropStorage, ExtCtrls, DBCtrls, DBGrids, StdCtrls, EditBtn, AsyncProcess,
-  ZConnection, ZDataset, ZSqlMonitor, ZSqlMetadata, Interfaces, dateutils,
-  comobj, variants, LCLType, ZAbstractRODataset, JwaWindows, ShellApi, StrUtils,
-  PropertyStorage, Spin, Grids, INIFiles, eventlog, resource, versiontypes,
-  versionresource, fpDBExport, memds;
+  locale_de, my_utils,  LCLIntf, UniqueInstance, Classes, SysUtils,
+  DB, dbf, FileUtil, SynHighlighterSQL, SynEdit, RTTIGrids, LResources, Forms,
+  Controls, Graphics, Dialogs, ComCtrls, Menus, IniPropStorage, ExtCtrls,
+  DBCtrls, DBGrids, StdCtrls, EditBtn, AsyncProcess, ZConnection, ZDataset,
+  ZSqlMonitor, ZSqlMetadata, Interfaces, dateutils, comobj, variants, LCLType,
+  ZAbstractRODataset, JwaWindows, ShellApi, StrUtils, PropertyStorage, Spin,
+  Grids, fpsexport,  INIFiles, eventlog, resource, versiontypes,
+  versionresource, fpDBExport, sqldb;
 
 type
   //Letters = array ['A'..'Z']  of String;
@@ -105,11 +105,10 @@ type
     AsyncProcess1: TAsyncProcess;
     BtnConnect: TButton;
     BtnAddLine: TButton;
+    BtnSearch: TButton;
     Button2: TButton;
     BtnDelLine: TButton;
     CbincMonth: TToggleBox;
-    cbKeinGruenberg: TCheckBox;
-    cbKeinGruenberg_kein_Wetterau: TCheckBox;
     DataSource2: TDataSource;
     DateEditBis: TDateEdit;
     DateEditVon: TDateEdit;
@@ -175,7 +174,6 @@ type
     DBGridFaks: TDBGrid;
     DBNavigator2: TDBNavigator;
     DirectoryEdit1: TDirectoryEdit;
-    EditNoGo: TLabeledEdit;
     EventLog1: TEventLog;
     GroupBox1: TGroupBox;
     GroupBox2: TGroupBox;
@@ -189,20 +187,34 @@ type
     FilterAb: TMenuItem;
     FilterBis: TMenuItem;
     Label3: TLabel;
+    Label4: TLabel;
+    Edit_Max_HSTIDENT: TLabeledEdit;
     Label5: TLabel;
-    EditMandanten: TLabeledEdit;
+    lbRecordCount: TLabel;
     lbDatabase: TLabeledEdit;
-    lbHostname: TLabeledEdit;
     lbPassword: TLabeledEdit;
     lbUserName: TLabeledEdit;
     ListBoxKnownLines: TListBox;
-    ListBox_tnsnames_ora: TListBox;
     Mem: TEdit;
     MenuItem1: TMenuItem;
     CheckLinie: TMenuItem;
     DeleteSelected: TMenuItem;
     MenuAddLinie: TMenuItem;
     LookupStornos: TMenuItem;
+    MnShowRecordCount: TMenuItem;
+    MnManuelleBuchungen: TMenuItem;
+    MNCheckLinieJeMandant: TMenuItem;
+    MnGroupValues: TMenuItem;
+    MnMore: TMenuItem;
+    MnFixColumn: TMenuItem;
+    MnAnrufsammeltaxis: TMenuItem;
+    MnFieldlist: TMenuItem;
+    MnSucheLinien: TMenuItem;
+    MnSearch: TMenuItem;
+    PopupGridReplace: TPopupMenu;
+    Shape1: TShape;
+    SpinEditTarifversion: TSpinEdit;
+    UpdateElgebaLinienNr: TMenuItem;
     MnSumColumn: TMenuItem;
     MnMarkExported: TMenuItem;
     Panel3: TPanel;
@@ -213,8 +225,6 @@ type
     Panel8: TPanel;
     PopupLinien: TPopupMenu;
     RID_as_Filter: TMenuItem;
-    SpinEditTarifversion: TSpinEdit;
-    SQL_history_lode: TMenuItem;
     FilterCombo: TComboBox;
     Pm_Search: TMenuItem;
     ProgressBar1: TProgressBar;
@@ -242,6 +252,7 @@ type
     StatusBar1: TStatusBar;
     TabDaten: TTabSheet;
     UniqueInstance1: TUniqueInstance;
+    UpDown1: TUpDown;
     ZConnection1: TZConnection;
     QFaks: TZReadOnlyQuery;
     ZCheckFields: TZReadOnlyQuery;
@@ -253,10 +264,9 @@ type
     procedure AuswahlFilterClick(Sender: TObject);
     procedure BtnAddLineClick(Sender: TObject);
     procedure BtnDelLineClick(Sender: TObject);
+    procedure BtnSearchClick(Sender: TObject);
     procedure Button2Click(Sender: TObject);
     procedure CbincMonthClick(Sender: TObject);
-    procedure cbKeinGruenbergChange(Sender: TObject);
-    procedure cbKeinGruenberg_kein_WetterauChange(Sender: TObject);
     procedure CheckLinieClick(Sender: TObject);
     procedure DateEditVonAcceptDate(Sender: TObject; var ADate: TDateTime;
       var AcceptDate: boolean);
@@ -282,6 +292,8 @@ type
       var Value: TStoredType);
     procedure IniPropStorage1StoredValues1Save(Sender: TStoredValue;
       var Value: TStoredType);
+    procedure IniPropStorage1StoredValues2Restore(Sender: TStoredValue;
+      var Value: TStoredType);
     procedure kopierenClick(Sender: TObject);
     procedure ListBoxKnownLinesKeyDown(Sender: TObject; var Key: word;
       Shift: TShiftState);
@@ -290,18 +302,26 @@ type
     procedure MenuAddLinieClick(Sender: TObject);
     procedure MenuItem1Click(Sender: TObject);
     procedure MenuItem2Click(Sender: TObject);
+    procedure MnAnrufsammeltaxisClick(Sender: TObject);
+    procedure MNCheckLinieJeMandantClick(Sender: TObject);
+    procedure MnFieldlistClick(Sender: TObject);
+    procedure MnFixColumnClick(Sender: TObject);
+    procedure MnGroupValuesClick(Sender: TObject);
+    procedure MnManuelleBuchungenClick(Sender: TObject);
     procedure MnMarkExportedClick(Sender: TObject);
+    procedure MnSearchClick(Sender: TObject);
+    procedure MnShowRecordCountClick(Sender: TObject);
+    procedure MnSucheLinienClick(Sender: TObject);
     procedure MnSumColumnClick(Sender: TObject);
     procedure OpenLogFileClick(Sender: TObject);
-    procedure Panel7DblClick(Sender: TObject);
     procedure Pm_SearchClick(Sender: TObject);
+    procedure PopupGridClose(Sender: TObject);
     procedure RemoveFilterClick(Sender: TObject);
     procedure RID_as_FilterClick(Sender: TObject);
     procedure SaveToFileClick(Sender: TObject);
     procedure SpinEdit1Change(Sender: TObject);
     procedure SpinEditTarifversionEditingDone(Sender: TObject);
     procedure SQLLoadClick(Sender: TObject);
-    procedure SQL_history_lodeClick(Sender: TObject);
     procedure UniqueInstance1OtherInstance(Sender: TObject;
       ParamCount: integer; Parameters: array of string);
     procedure QFaksAfterOpen(DataSet: TDataSet);
@@ -309,6 +329,8 @@ type
     procedure SumClick(Sender: TObject);
     procedure QFaksBeforeOpen(DataSet: TDataSet);
     procedure QFaks2DbaseClick(Sender: TObject);
+    procedure UpdateElgebaLinienNrClick(Sender: TObject);
+    procedure UpDown1Click(Sender: TObject; Button: TUDBtnType);
   private
     { private declarations }
   public
@@ -344,6 +366,14 @@ type
 
     function LookUpStringGrid(Grid: TStringGrid;GesuchterMandant, ZuErsetzendeLinienNr: string):string;
 
+    (* sucht die LinienNummern je Mandant *)
+    procedure LinieJeMandant ( Sender: TObject);
+
+    (* Filter zur History-Liste der FilterCombo hinzufügen *)
+    function AddFilterHistory(item : String):boolean;
+
+    procedure ShowRecordCount(Sender: TObject);
+
 
 
 
@@ -357,21 +387,17 @@ var
   StoppIt: boolean = False;
   FirstRun: boolean = False;
   BM: TBookmark;
-  (* Linien, die nicht berücksichtigt werden sollen
-     siehe VOR sql Statement in  "Verbinden"
-  *)
-  NoGo: string;
   abort: boolean = False;
   gesucht: variant;
   RowID: string; (* soll den Datensatz bei Fehlermeldungen kennzeichnen *)
   FLastColumn: TColumn; //store last grid column we sorted on
 
-  MaxBuchungsDatum, SavePath
+  SavePath
   (* SavePath steht in der *.ini, wohin es laut Dialog eingetragen wird *): string;
   GesamtEinnahme, NochNichtGemeldet: currency;
   VonDatum, BisDatum: TDateTime;
   SQLHistory, RIDS_in_Selection: TStringList;
-  SQLHistoryIndex: integer = 1;
+  SQLHistoryIndex: integer;
   (* wird in FormCreate berechnet *)
   TarifVersion: integer = 35;
 
@@ -379,6 +405,7 @@ var
 
 const
   NL = chr(10) + chr(13);
+  YearPrefix = '02.01.1899 ';
 
 
 
@@ -389,7 +416,7 @@ implementation
 
 {$R *.lfm}
 
-uses summen;
+uses summen, Unit2;
 
 function TForm1.resourceVersionInfo: string;
 
@@ -555,9 +582,13 @@ begin
     begin
       Result := false;
 
+      DBGridFaks.SelectedField := QFaks.FieldByName('DATUMZEIT');
+      Application.ProcessMessages;
+
       ShowMessage(
         'Das Feld ''' + FieldName + ''' läßt sich nicht filtern. Tipp: alles nach Excel und dort filtern!' + NL + NL +
-        'Siehe auch den auskommentierten Teil im WHERE Ausdruck auf Seite Einstellungen');
+        'Siehe auch den auskommentierten Teil im WHERE Ausdruck auf Seite Einstellungen' + NL +
+        'Alternativ die Spalte ''DATUMZEIT'' nutzen, die jetzt ausgwählt wurde.');
     end
     else
     Result := true;
@@ -584,6 +615,157 @@ begin
     end;
 
   end;
+
+end;
+
+procedure TForm1.LinieJeMandant(Sender: TObject);
+var list, DupLinie : TStringList;
+    FName, StrLinie, item, item1 : String;
+    Grid : TStringGrid;
+    x, y, jcount : integer;
+
+begin
+  try
+    Jei;
+    FName := IncludeTrailingBackSlash(DirectoryEdit1.Directory) + 'Linien_je_Mandant.csv';
+
+    (* wird Mandant und LinienNr aufnehmen *)
+    list := TStringList.Create;
+
+    (* wird die doppelten LinienNummern aufnehmen *)
+    DupLinie := TStringList.Create;
+    DupLinie.Sorted:=true;
+    DupLinie.Duplicates:=dupIgnore;
+
+    (* Notbehelf: damit nachher nach Spalte 2 sortiert werden kann *)
+    Grid := TStringGrid.Create(Application.MainForm);
+
+
+    ProgressBar1.Position:=0;
+    ProgressBar1.Max:=QFaks.RecordCount;
+    BM := QFaks.GetBookmark;
+
+    QFaks.DisableControls;
+
+    QFaks.First;
+
+    (* List mit Mandant, Liniennummer füllen *)
+    while not QFaks.EOF do
+    begin
+
+      (* idiotische Linie 31/32 korrigieren *)
+      StrLinie := ExtractNumbers(QFaks.FieldByName('Linie').AsString);
+
+      //assert(StrLinie='403','Linie ist 403');
+
+      (* zu ersetzende LinienNummer nachschlagen, wenn nicht zu ersetzen als evtl Problemfall in list eintragen *)
+      if LookUpStringGrid(GridReplaceLineNumber,QFaks.FieldByName('ID_F2MANDANT').AsString,StrLinie) =  StrLinie then
+      begin
+        item := QFaks.FieldByName('ID_F2MANDANT').AsString + ',' + QFaks.FieldByName('LINIE').AsString;
+        if list.IndexOf(item) = -1 then list.Add(item);
+      end;
+      QFaks.Next;
+      ProgressBar1.Position := QFaks.RecNo;
+    end;
+
+   (* Test ob Duplikat gefunden wird *)
+   //list.insert(0,'0,90');
+   //list.insert(0,'0,90');
+   //list.insert(0,'0,95');
+
+   (* Liste Sortieren *)
+   list.Sort;
+
+
+   list.insert(0,'Mandant,Linie');
+
+   if list.Count = 1 then exit;
+
+   (* jetzt list in Grid übernehmen, um nach Mandant zu sortieren.
+      In Spalte Liniennummer sind dann Duplikate zu entdecken *)
+
+   Grid.RowCount:=List.Count;
+
+   for x := 0 to list.Count -1 do
+   begin
+     Grid.Rows[x].CommaText := list[x];
+   end;
+
+   Grid.SortColRow(true,1);
+
+   (* doppelte Einträge suchen *)
+   for x := 0 to Grid.RowCount -1 do
+   begin
+     jcount := 0;
+     (* gesucht wird ... *)
+     item := Grid.Cells[1,x];
+     (* ... suche in *)
+     for y := 0 to Grid.RowCount -1 do
+     begin
+       (* doppelt? *)
+      if Grid.Cells[1,y] = item then
+      begin
+        inc(jcount);
+
+        if jcount > 1 then
+        DupLinie.Add('Linie: ' + item);
+     end;
+
+
+     end;
+
+
+
+   end;
+
+
+   if DupLinie.Count = 0 then
+      ShowMessage('Keine doppelten LinienNummern, aber prüfen Sie selbst!!')
+   else
+      ShowMessage('Diese Linien sind doppelt (wird auch gleich in Excel angezeigt): ' + NL + NL + DupLinie.Text);
+
+   (* In csv-Datei schreiben und öffnen *)
+   Grid.SaveToCSVFile(FName,';');
+   Nei;
+   OpenURL(FName);
+
+
+  finally
+    Nei;
+    FreeAndNil(List);
+    FreeAndNil(Grid);
+    FreeAndNil(DupLinie);
+
+    if QFaks.BookmarkValid(BM) then
+        QFaks.GotoBookmark(BM);
+
+    QFaks.FreeBookmark(BM);
+
+    QFaks.EnableControls;
+
+    ProgressBar1.Position :=0;
+    Application.ProcessMessages;
+
+
+  end;
+
+end;
+
+function TForm1.AddFilterHistory(item: String): boolean;
+begin
+  Result := false;
+  if FilterCombo.Items.IndexOf(Item) = -1 then
+  begin
+     FilterCombo.Items.Insert(0,item);
+     FilterCombo.ItemIndex := 0;
+     Result := true;
+  end;
+end;
+
+procedure TForm1.ShowRecordCount(Sender: TObject);
+begin
+  (* Anzahl der Datensätze anzeigen *)
+  lbRecordCount.Caption := FormatFloat('#,##0',QFaks.RecordCount) + ' Datensätze';
 
 end;
 
@@ -727,8 +909,7 @@ end;
 
 function TForm1.ShowFilterInfo(Warning: boolean): boolean;
 begin
-  if ((trim(FilterCombo.Text) = '') or (not QFaks.Filtered)) then
-    Warning := False;
+  //if ((trim(FilterCombo.Text) = '') or (not QFaks.Filtered)) then Warning := False;
 
   if Warning then
   begin
@@ -753,8 +934,10 @@ var
   SumZeitraum, SummeDBF, NochZuMelden: currency;
   aktuellerMonat, FolgeMonat, SQLFile, Filter, StrOr, FName: string;
   MyDirSelect: TSelectDirectoryDialog;
-  RIDFaks, RIDGeloescht, RIDMonat, MyFiles, Titel, Betrag: TStringList;
+  RIDFaks, RIDGeloescht, RIDMonat, MyFiles, Titel, Betrag, AmisDataMissing: TStringList;
 begin
+    (* ja, schrecklich unübersichtlicher Code, ich kanns eben nicht besser *)
+
     (* bereits gemeldete Einnahmen zu Monat xy sind normalerweise in zwei Monatsdateien zu finden.
        Verkäufe vom Juni findet man also im Juni und im Juli.
        Das ist Folge von zu spät eingelesenen Druckern/Terminals
@@ -763,7 +946,10 @@ begin
 
   (* ACHTUNG:
      es wird zwischen months=0 und months>0 im Code unterschieden!!!!!!!!!!!
-     für months>0 siehe ungefähr Zeile 935 *)
+     für months>0 siehe ungefähr Zeile 1090
+
+     Ganz unten werden nachträgliche Stornos ( fälschlich VertragsNr=1 ) korrigiert
+  *)
 
   try
     (* wie hoch sind die noch nicht an AmisData gemldeten Einnahmen: VertragsNr.IsNull *)
@@ -771,6 +957,9 @@ begin
       (* wird die Summen de Einnahmen in FormSum anzeigen *)
       Titel := TStringList.Create;
       Betrag := TStringList.Create;
+
+      (* Nachträgliche Buchungen in FAKS mit falscher VertragsNr=1 , also nachzubuchen *)
+      AmisDataMissing := TStringList.Create;
 
 
       QFaks.DisableControls;
@@ -845,7 +1034,9 @@ begin
     (* Dialog SelectDirectory erzeugen *)
     MyDirSelect := TSelectDirectoryDialog.Create(Application);
 
-    if not DirectoryExists(SavePath) then
+    SavePath := IncludeTrailingBackSlash(SavePath);
+
+    if ((not DirectoryExists(SavePath)) or (trim(SavePath) = '\')) then
     begin
 
        (* einen halbwegs passenden Vorgabewert für Directory erzeugen,
@@ -882,7 +1073,8 @@ begin
         ShowMessage('Zumindest einer der zwei Monate:' + NL +
           ExtractFileName(aktuellerMonat) + NL + ExtractFileName(FolgeMonat) +
           NL + 'konnte in' + NL + SavePath +
-          NL + ' nicht gefunden werden. Machen Sie den Vergleich bitte mit Stat.exe selber!');
+          NL + ' nicht gefunden werden. Machen Sie den Vergleich bitte mit Stat.exe selber!' + NL +
+          'Die Variable SavePath: ' + SavePath + ' steht in der ini-Datei dieser Anwendung!');
         exit;
       end;
 
@@ -1070,7 +1262,7 @@ begin
 
       end;
       FreeAndNil(MyDirSelect);
-      /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+      /////////////////////////////////////////////// ENDE ein Monat //////////////////////////////////////////////////////////////
     end (* months=0 *)
     else
     begin
@@ -1259,6 +1451,7 @@ begin
           FilterCombo.Text := Filter;
           StatusBar1.SimpleText := StatusBar1.SimpleText +
           ' Jetzt wird der Filter gesetzt';
+          Application.ProcessMessages;
           QFaks.Filter := '(' + Filter + ') And Vertragsnr=''1''';
           QFaks.Filtered := True;
           ShowFilterInfo(True);
@@ -1397,6 +1590,86 @@ begin
           end;
 
         end;
+
+// XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX VertragsNr = 1, also nachträgliche Stornos
+
+        (* Versuch: was ist noch nicht in AmisData, hat aber VertragsNR=1, also z.B. nachträglich Stornos *)
+        StatusBar1.SimpleText := 'was ist noch nicht in AmisData, hat aber VertragsNR=1, also z.B. nachträglich Stornos';
+        Application.ProcessMessages;
+
+        (* Alle RID von QFaks durchlaufen ... *)
+        for x := 0 to RIDFaks.Count -1 do
+        begin
+
+           ProgressBar1.Position:=x;
+           Application.ProcessMessages;
+
+           (* ... nachsehen, ob die RID in DBF vorhanden *)
+           if RIDMonat.IndexOf(RIDFaks[x]) = -1 then
+           begin
+             (* In QFaks nachschlagen ob VertragsNr=1 *)
+             if QFaks.Lookup('RID',VarArrayOf([RIDFaks[x]]),'VERTRAGSNR')='1' then
+                AmisDataMissing.Add(RIDFaks[x]);
+           end;
+
+
+        end;
+
+        (* Filter zusammenstellen *)
+        if AmisDataMissing.Count > 0 then
+        begin
+         if QFaks.Filtered then QFaks.Filtered:=false;
+
+         Filter := '';
+
+         for x := 0 to AmisDataMissing.Count -1 do
+         begin
+
+           if Filter = '' then
+           begin
+             Filter := 'RID=' + QuotedStr(AmisDataMissing[x]);
+           end
+           else
+           begin
+             Filter :=
+               Filter + StrOr + QuotedStr(AmisDataMissing[x]);
+           end;
+
+        end;
+
+         FilterCombo.Text := Filter;
+         QFaks.Filter:=Filter;
+         QFaks.Filtered:=true;
+         ShowFilterInfo(True);
+
+
+
+
+         ShowMessage('Summe Betrag: ' + FormatFloat('#,##.00',GesamtEinnahme - SummeDBF - NochZuMelden) + NL + NL +
+         'Diese Daten  fehlen in Amisdata (Filter wurde gesetzt!):'  + NL + NL + Filter);
+
+         if Messagedlg('Vorsicht!!!' + NL + NL +
+            'Soll die VertagsNr für die eben angezeigten Datensätze zurückgesetzt werden, um sie neu in AmisData zu importieren?',mtConfirmation,[mbYes,mbNo],0)= mrYes then
+            begin
+              for x := 0 to AmisDataMissing.Count -1 do
+              begin
+                StatusBar1.SimpleText:='aktualisiere: ' + AmisDataMissing[x];
+                Application.ProcessMessages;
+                ZUpDateRid.ParamByName('RID').AsString := AmisDataMissing[x];
+                ZUpDateRid.ParamByName('VertragsNr').AsString := '';
+                ZUpDateRid.ExecSQL;
+
+              end;
+
+
+              StatusBar1.SimpleText:='Daten neu einlesen ...';
+              Application.ProcessMessages;
+
+               QFaks.Refresh;
+               DBGRidFaks.SelectedField := QFaks.FieldByName('VertragsNr');
+               ShowMessage('Bei den angezeigten ''' + IntToStr(AmisDataMissing.Count) + ''' Datensätzen wurde die VertragsNr zurückgesetzt!');
+            end;
+        end;
       end;
 
     end;
@@ -1412,6 +1685,7 @@ begin
     FreeAndNil(RIDGeloescht);
     FreeAndNil(Titel);
     FreeAndNil(Betrag);
+    FreeAndNil(AmisDataMissing);
   end;
 
 end;
@@ -1704,13 +1978,15 @@ begin
   EventLog1.LogType := ltFile;
   EventLog1.Active := True;
 
-  (* gibts die tnsnames.ora, sonst Oracle Fehlermeldung *)
-  if not FileExists(ExePath + 'tnsnames.ora') then
-  begin
-    ListBox_tnsnames_ora.Items.SaveToFile(ExePath + 'tnsnames.ora');
-    ShowMessage('Die Oracle Konfigurationsdatei ''' +
-      ExePath + 'tnsnames.ora'' konnte nicht gefunden werden und wurde neu erzeugt. Einträge ggf. überprüfen!!');
-  end;
+  (* Database=hlbst02:1521/VASP macht das Gezerre mit tnsnames.ora überflüssig
+
+    gibts die tnsnames.ora, sonst Oracle Fehlermeldung *)
+  //if not FileExists(ExePath + 'tnsnames.ora') then
+  //begin
+  //  ListBox_tnsnames_ora.Items.SaveToFile(ExePath + 'tnsnames.ora');
+  //  ShowMessage('Die Oracle Konfigurationsdatei ''' +
+  //    ExePath + 'tnsnames.ora'' konnte nicht gefunden werden und wurde neu erzeugt. Einträge ggf. überprüfen!!');
+  //end;
 
   (* soll die ID's aufnehmen, die bei Multiselect Rows in QFaks ausgewählt wurden *)
   RIDS_in_Selection := TStringList.Create;
@@ -1726,7 +2002,10 @@ procedure TForm1.FormKeyDown(Sender: TObject; var Key: word; Shift: TShiftState)
 begin
   if ((Key = VK_F3) and (gesucht <> '')) then
   begin
-    Pm_SearchClick(Sender);
+    if Screen.ActiveControl.Name = DBGridFaks.Name then
+      Pm_SearchClick(Sender)
+    else if Screen.ActiveControl.Name = GridReplaceLineNumber.Name then
+      MnSearchClick(Sender);
   end
   else if (Key = VK_ESCAPE) then
   begin
@@ -1745,6 +2024,9 @@ procedure TForm1.IniPropStorage1StoredValues1Restore(Sender: TStoredValue;
   var Value: TStoredType);
 begin
   SavePath := Value;
+  (* Fehler verhindern *)
+  if trim(SavePath) = '\'  then
+     SavePath := '';
 end;
 
 procedure TForm1.IniPropStorage1StoredValues1Save(Sender: TStoredValue;
@@ -1752,6 +2034,12 @@ procedure TForm1.IniPropStorage1StoredValues1Save(Sender: TStoredValue;
 begin
   (* in ini Speichern Amisdata Pfad Save *)
   Value := IncludeTrailingBackslash(SavePath);
+end;
+
+procedure TForm1.IniPropStorage1StoredValues2Restore(Sender: TStoredValue;
+  var Value: TStoredType);
+begin
+  if Value = '' then Value := FormatDateTime('dd.mm.yyyy', incMonth(Date,-1));
 end;
 
 procedure TForm1.kopierenClick(Sender: TObject);
@@ -1904,7 +2192,7 @@ begin
       QFaks.GotoBookmark(BM);
     QFaks.EnableControls;
 
-
+    ShowRecordCount(Sender);
   end;
 end;
 
@@ -1985,6 +2273,119 @@ begin
 
 end;
 
+procedure TForm1.MnAnrufsammeltaxisClick(Sender: TObject);
+begin
+  if QFaks.Filtered then  QFaks.Filtered := False;
+
+  (* Linien Anrufsammeltaxi als Filter setzen *)
+  FilterCombo.Text:='(Linie=''404'' AND ID_F2MANDANT=''5'') OR (Linie=''818'' AND ID_F2MANDANT=''5'') OR (Linie=''835'' AND ID_F2MANDANT=''5'') OR (Linie=''836'' AND ID_F2MANDANT=''5'') OR (Linie=''837'' AND ID_F2MANDANT=''5'') OR (Linie=''46'' AND ID_F2MANDANT=''5'') OR (Linie=''66'' AND ID_F2MANDANT=''5'') OR (Linie=''67'' AND ID_F2MANDANT=''5'')';
+
+  QFaks.Filter := FilterCombo.Text;
+
+  QFaks.Filtered := True;
+
+  AddFilterHistory(FilterCombo.Text);
+
+
+  ShowFilterInfo(True);
+
+  ShowRecordCount(Sender);
+
+
+end;
+
+procedure TForm1.MNCheckLinieJeMandantClick(Sender: TObject);
+begin
+  LinieJeMandant(Sender);
+end;
+
+procedure TForm1.MnFieldlistClick(Sender: TObject);
+begin
+  (* Feldliste anzeigen: SQL Code aus Faks_Meldung.log *)
+  if not Form2.ZReadOnlyQuery1.Active then Form2.ZReadOnlyQuery1.Active:=true;
+  Form2.ShowModal;
+end;
+
+procedure TForm1.MnFixColumnClick(Sender: TObject);
+begin
+  if DBGridFaks.FixedCols = 1 then
+    (* keine Ahnung warum hier plus 2 *)
+    DBGridFaks.FixedCols:= DBGridFaks.SelectedColumn.Index +2
+  else
+    DBGridFaks.FixedCols:=1;
+end;
+
+procedure TForm1.MnGroupValuesClick(Sender: TObject);
+var list : TStringList;
+    FName : String;
+
+begin
+  try
+    Jei;
+    FName := IncludeTrailingBackSlash(DirectoryEdit1.Directory) + 'Werte_in_Spalte_' + DBGridFaks.SelectedField.FieldName + '.txt';
+    list := TStringList.Create;
+    list.Duplicates:=dupIgnore;
+    List.Sorted:=true;
+
+    ProgressBar1.Position:=0;
+    ProgressBar1.Max:=QFaks.RecordCount;
+    BM := QFaks.GetBookmark;
+
+    QFaks.DisableControls;
+
+    QFaks.First;
+
+    while not QFaks.EOF do
+    begin
+      list.Add(DBGridFaks.SelectedField.AsString);
+      QFaks.Next;
+      ProgressBar1.Position := QFaks.RecNo;
+    end;
+
+
+   if ((list.Count < 50) And (list.Count > 0)) then
+   begin
+      ShowMessage('Diese Werte gabs in ''' + DBGridFaks.SelectedField.FieldName + '''' + NL + NL +
+      list.Text + NL + 'Strg + c kopiert das!');
+
+   end
+   else
+   begin
+     list.SaveToFile(FName);
+
+     OpenURL(FName);
+
+   end;
+
+  finally
+    Nei;
+    FreeAndNil(List);
+    if QFaks.BookmarkValid(BM) then
+        QFaks.GotoBookmark(BM);
+
+    QFaks.FreeBookmark(BM);
+
+    QFaks.EnableControls;
+
+    ProgressBar1.Position :=0;
+    Application.ProcessMessages;
+
+
+  end;
+
+end;
+
+procedure TForm1.MnManuelleBuchungenClick(Sender: TObject);
+begin
+  QFaks.Filter:='LENGTH(BELEGNR)>''6''';
+  FilterCombo.Text:=QFaks.Filter;
+  QFaks.Filtered:=true;
+  ShowFilterInfo(true);
+  DBGridFaks.SelectedField := QFaks.FieldByName('BELEGNR');
+
+  ShowRecordCount(Sender);
+end;
+
 procedure TForm1.MnMarkExportedClick(Sender: TObject);
 var
   FName, mark: string;
@@ -2036,6 +2437,71 @@ begin
 
     MarkExported(FName, mark);
   end;
+end;
+
+procedure TForm1.MnSearchClick(Sender: TObject);
+var Col, x, y : Integer;
+    found : boolean;
+begin
+  (* Im StringGrid einen Wert suchen *)
+  GridReplaceLineNumber.SetFocus;
+  col := GridReplaceLineNumber.col;
+  y :=   GridReplaceLineNumber.Row;
+
+  gesucht := GridReplaceLineNumber.Cells[col,GridReplaceLineNumber.Row];
+
+  gesucht := InputBox(
+    'Welche Zeichenfolge soll in Spalte ''' +
+    GridReplaceLineNumber.Cells[col,0] +
+    ''' gesucht werden?', 'Suchbegriff exakte Schreibweise:', gesucht);
+
+
+  found := false;
+
+  for x := 1 to GridReplaceLineNumber.RowCount -1 do
+  begin
+     if GridReplaceLineNumber.Cells[col,x] = gesucht then
+     begin
+       found := true;
+       GridReplaceLineNumber.Row:=x;
+       GridReplaceLineNumber.Col:=Col;
+       GridReplaceLineNumber.SetFocus;
+       break;
+     end;
+  end;
+
+  if not found then
+  begin
+    GridReplaceLineNumber.Row:=y;
+    GridReplaceLineNumber.Col:=Col;
+    GridReplaceLineNumber.SetFocus;
+
+     ShowMessage(gesucht + ' konnte in Spalte ''' + GridReplaceLineNumber.Cells[col,0] + ''' nicht gefunden weden.' + NL +
+     'Achtung: GROSS/klein ist kriegsentscheidend!');
+
+
+  end;
+
+
+end;
+
+procedure TForm1.MnShowRecordCountClick(Sender: TObject);
+begin
+   ShowMessage('Angezeigt werden ' + FormatFloat('#,##0',QFaks.RecordCount) + ' Datensätze.');
+end;
+
+procedure TForm1.MnSucheLinienClick(Sender: TObject);
+begin
+  ListBoxKnownLines.SetFocus;
+  gesucht := ListBoxKnownLines.Items[ListBoxKnownLines.ItemIndex];
+  gesucht := InputBox(
+    'Welche LinienNummer soll in der Liste gesucht werden?', 'Suchbegriff exakte Schreibweise:', gesucht);
+
+  if ListBoxKnownLines.Items.IndexOf(gesucht) = -1 then
+   ShowMessage(gesucht + ' konnte nicht gefunden werden!')
+  else
+   ListBoxKnownLines.Selected[ListBoxKnownLines.Items.IndexOf(gesucht)] := true ;
+
 end;
 
 procedure TForm1.MnSumColumnClick(Sender: TObject);
@@ -2090,11 +2556,6 @@ end;
 procedure TForm1.OpenLogFileClick(Sender: TObject);
 begin
   OpenLog(ZSQLMonitor1.FileName);
-end;
-
-procedure TForm1.Panel7DblClick(Sender: TObject);
-var NeueLinienNr : string;
-begin
 end;
 
 procedure TForm1.Pm_SearchClick(Sender: TObject);
@@ -2174,6 +2635,11 @@ begin
   end;
 end;
 
+procedure TForm1.PopupGridClose(Sender: TObject);
+begin
+      Application.ProcessMessages;
+end;
+
 procedure TForm1.RemoveFilterClick(Sender: TObject);
 begin
   QFaks.Filtered := False;
@@ -2183,47 +2649,90 @@ begin
 
   ShowFilterInfo(False);
 
+  ShowRecordCount(Sender);
+
 end;
 
 procedure TForm1.RID_as_FilterClick(Sender: TObject);
 var
   Filter, StrOr: string;
-  x: integer;
+  x, MaxRecs: integer;
+  tab : TDBF;
 begin
+  (* ab wann sollen die RID's in Datei geschrieben werden? *)
+  MaxRecs := 100;
+
   StrOr := ' OR RID=';
   try
     jei;
+    tab := TDBF.Create(Application.MainForm);
+
     QFaks.DisableControls;
     BM := QFaks.GetBookmark;
 
     if not QFaks.Filtered then
       if Messagedlg(
-        'Die Daten sind ungefiltert, der Filterausdruck für die RID kann riesig werden!' +
+        'Die Daten sind ungefiltert, der Filterausdruck für die RID kann riesig werden!' + NL +
+        'Bei mehr als ' + IntToStr(MaxRecs) + ' Datensätzen werden die RID''s in eine DBF-Datei geschrieben!' +
         NL + NL + 'Wollen Sie wirklich fortfahren?', mtConfirmation, [mbYes, mbNo], 0) =
         mrNo then
         exit;
 
+
+
     QFaks.First;
-    Filter := 'RID=' + QuotedStr(QFaks.FieldByName('RID').AsString);
-    while not QFaks.EOF do
+
+    if QFaks.RecordCount>=MaxRecs then
     begin
-      QFaks.Next;
-      Filter := Filter + StrOr + QuotedStr(QFaks.FieldByName('RID').AsString);
+      ProgressBar1.Position:=0;
+      ProgressBar1.Max:=QFaks.RecordCount;
+      tab.TableName:=IncludeTrailingBackslash(DirectoryEdit1.Directory) + 'RID_Kontrolle.dbf';
+      tab.FieldDefs.Add('RID',ftString,30);
+      tab.CreateTable;
+      tab.Open;
+      while not QFaks.EOF do
+      begin
+        tab.Insert;
+        tab.Edit;
+        tab.FieldByName('RID').AsString:=QFaks.FieldByName('RID').AsString;
+        tab.Post;
+        QFaks.Next;
+        ProgressBar1.Position:=QFaks.RecNo;
+
+      end;
+
+
+      if Messagedlg('Explorer öffnen? ' + IntToStr(Tab.Recordcount) + ' Datensätze wurden geschrieben nach ''' + Tab.TableName + '''',mtConfirmation,[mbYes,mbNo],0)= mrYes then
+      OpenExplorer(IncludeTrailingBackslash(DirectoryEdit1.Directory) + Tab.TableName);
+
+      tab.close;
+
+    end
+    else
+    begin
+      Filter := 'RID=' + QuotedStr(QFaks.FieldByName('RID').AsString);
+      while not QFaks.EOF do
+      begin
+        QFaks.Next;
+        Filter := Filter + StrOr + QuotedStr(QFaks.FieldByName('RID').AsString);
+      end;
+
+      mem.Clear;
+      mem.Text := Filter;
+      mem.SelectAll;
+      mem.CopyToClipboard;
+
+      QFaks.GotoBookmark(BM);
+
+      ShowMessage(
+        'Der erstellte RID-Filter wurde in die Zwischenablage kopiert und könnte anderswo per Strg + V eingefügt werden.');
     end;
-
-    mem.Clear;
-    mem.Text := Filter;
-    mem.SelectAll;
-    mem.CopyToClipboard;
-
-    QFaks.GotoBookmark(BM);
-
-    ShowMessage(
-      'Der erstellte RID-Filter wurde in die Zwischenablage kopiert und könnte anderswo per Strg + V eingefügt werden.');
   finally
     Nei;
     QFaks.EnableControls;
     QFaks.FreeBookmark(BM);
+    FreeAndNil(tab);
+    ProgressBar1.Position:=0;
 
   end;
 
@@ -2273,33 +2782,6 @@ begin
   end;
 end;
 
-procedure TForm1.SQL_history_lodeClick(Sender: TObject);
-var
-  line: string;
-begin
-  if SQLHistory.Count > 0 then
-  begin
-    Dec(SQLHistoryIndex);
-
-    if SQLHistoryIndex > -1 then
-      StrToStrings(SQLHistory[SQLHistoryIndex], '°', Memo1.Lines, True)
-    else
-    begin
-      ShowMessage('Der erste Eintrag der History wurde bereits geladen!' +
-        NL + 'Jetzt wird wieder der höchste Eintrag der Liste angezeigt');
-      SQLHistoryIndex := SQLHistory.Count - 1;
-      StrToStrings(SQLHistory[SQLHistoryIndex], '°', Memo1.Lines, True);
-
-    end;
-
-    StatusBar1.SimpleText := 'Die SQL-History enthält: ' +
-      IntToStr(SQLHistory.Count) + ' Einträge, angezeigt wird jetzt der Eintrag ' +
-      IntToStr(SQLHistoryIndex + 1);
-  end
-  else
-    ShowMessage('Die SQL-History enthält noch keine Abfragen');
-end;
-
 procedure TForm1.UniqueInstance1OtherInstance(Sender: TObject;
   ParamCount: integer; Parameters: array of string);
 begin
@@ -2315,28 +2797,35 @@ end;
 procedure TForm1.QFaksAfterOpen(DataSet: TDataSet);
 var
   x: integer;
-  F: TFloatField;
 begin
   Memo1.Lines.Assign(QFaks.SQL);
   DBGridFaks.AutoSizeColumns;
 
+
   (* dafür sorgen, dass nicht 1,0999999999 statt 1,10 EURO angezeigt werden *)
-  //QFaks.FieldDefs.Update;
   for x := 0 to QFaks.FieldCount - 1 do
   begin
     if QFaks.Fields[x].DataType = ftFloat then
     begin
-      F := (QFaks.Fields[x] as TFloatField);
-      //ShowMessage(QFaks.Fields[x].FieldName);
-      F.Precision := 15;
-      F.DisplayFormat := '#,##0.00';
-      //QFaks.FieldDefs.Update;
+      (QFaks.Fields[x] as TFloatField).Precision := 15;
+      (QFaks.Fields[x] as TFloatField).DisplayFormat := '#,##0.00';
     end;
-    (* Nur Feld Anzahl ist integer *)
-    //else if QFaks.Fields[x].DataType = ftInteger then
-    // ShowMessage(QFaks.Fields[x].FieldName + ' = integer');
+
+    (*  Feld Zeit und Buchungszeit mit speziellemm Format *)
+    if ((QFaks.Fields[x].FieldName = 'ZEIT') OR (QFaks.Fields[x].FieldName = 'BUCHUNGSZEIT')) then
+    begin
+       (QFaks.Fields[x] AS TDateTimeField).DisplayFormat := 'hh:mm:ss';
+    end;
+
   end;
 
+  (* Hinweis CheckLinien auszuführen *)
+  x := trunc(Date - StrToDateDef(IniPropStorage1.StoredValue['CheckLinie'], 0));
+  if x >= 30 then
+   ShowMessage('Sie haben Check-Linien seit ' + IntToStr(x) + ' Tagen nicht mehr ausgeführt' + NL +
+   'Bitte nachholen');
+
+   ShowRecordCount(self);
 end;
 
 procedure TForm1.ApplicationProperties1Hint(Sender: TObject);
@@ -2379,7 +2868,9 @@ begin
 
 
     (* Filter auf Felder nur mit Zeit kann ich nicht *)
-    if not CheckFilterPossible(DBGridFaks.SelectedField.FieldName) then exit;
+    //if not CheckFilterPossible(DBGridFaks.SelectedField.FieldName) then exit;
+
+
 
 
     (* ggf. vorhandenen Filter durch ' AND ' ergänzen *)
@@ -2402,19 +2893,18 @@ begin
   QFaks.Filtered := True;
 
   (* nur zur Liste hinzufügen, falls noch nicht darin enthalten *)
-  if (FilterCombo.Items.IndexOf(Filter) = -1) then
-  begin
-    //ShowMessage('Filter noch nicht vorhanden ' + Filter);
-    FilterCombo.Items.Add(QFaks.Filter);
-    FilterCombo.ItemIndex := FilterCombo.Items.Count - 1;
-  end
-  else
-    FilterCombo.Text := Filter;
+  AddFilterHistory(Filter);
+
 
 
   (* rotes Panel als Warnhinweis *)
   //FilterCombo.Visible := True;
   ShowFilterInfo(True);
+
+  ShowRecordCount(Sender);
+
+  Application.ProcessMessages;
+
 
 end;
 
@@ -2422,19 +2912,26 @@ procedure TForm1.BtnAddLineClick(Sender: TObject);
 begin
   (* Zeile hinzufügen *)
   GridReplaceLineNumber.RowCount:= GridReplaceLineNumber.RowCount +1 ;
-  (* neue Zeile auswäheln *)
+  (* neue Zeile auswählen *)
   GridReplaceLineNumber.Row := GridReplaceLineNumber.RowCount -1;
   GridReplaceLineNumber.SetFocus ;
 end;
 
 procedure TForm1.BtnDelLineClick(Sender: TObject);
 begin
+  GridReplaceLineNumber.SetFocus;
+  if Messagedlg('Soll die aktuelle Zeile: ' + GridReplaceLineNumber.Cells[GridReplaceLineNumber.Col, GridReplaceLineNumber.Row]  + ' wirklich gelöscht werden?',mtConfirmation,[mbYes,mbNo],0)= mrYes then
   GridReplaceLineNumber.DeleteColRow(false,GridReplaceLineNumber.Row);
+end;
+
+procedure TForm1.BtnSearchClick(Sender: TObject);
+begin
+  MnSearchClick(Sender);
 end;
 
 procedure TForm1.ApplicationProperties1Exception(Sender: TObject; E: Exception);
 begin
-  ShowMessage('Mist ein Fehler:' + NL + NL + E.Message + NL + NL +
+  ShowMessage('Mist ein Fehler:' + NL + NL + E.Message + NL + (Sender as TComponent).Name + NL +
     'Faks Spalte RID hat den Wert ' + RowID + NL + NL +
     'Oft hilft auch ein Neustart der Anwendung!!');
   (* Oracle LogFile anzeigen *)
@@ -2457,12 +2954,13 @@ begin
     (* SQL in History speichern *)
     line := StringsToStr(Memo1.Lines, '°', True);
     if (SQLHistory.IndexOf(Line) = -1) then
+    begin
       SQLHistory.Add(line);
+      SQLHistoryIndex := SQLHistory.Count -1;
+    end;
 
-    SQLHistoryIndex := SQLHistory.Count;
-
-    Memo1.Hint:='Die SQL-History enthält ' + IntToStr(SQLHistory.Count) + ' Einträge. Drücken Sie Strg + F8, um durch die Liste zu schalten.' + NL +
-    'Mit ''' + Button2.Caption + ''' führen Sie den angezeigten SQL-Code aus.';
+    //Memo1.Hint:='Die SQL-History enthält ' + IntToStr(SQLHistory.Count) + ' Einträge. Drücken Sie Strg + F8, um durch die Liste zu schalten.' + NL +
+    //'Mit ''' + Button2.Caption + ''' führen Sie den angezeigten SQL-Code aus.';
 
 
   finally
@@ -2478,32 +2976,20 @@ begin
   begin
     SpinEdit1Change(Sender);
 
+    (* damit das ändern per Code geht: *)
+    DateEditVon.DirectInput:=true;
+    DateEditBis.DirectInput:=true;
+
     DateEditVon.Date := VonDatum;
     DateEditBis.Date := BisDatum;
 
+    (* zurücknehmen: *)
+    DateEditVon.DirectInput:=false;
+    DateEditBis.DirectInput:=false;
+
+
     Verbinden();
     CbincMonth.Checked := False;
-  end;
-end;
-
-procedure TForm1.cbKeinGruenbergChange(Sender: TObject);
-begin
-  if cbKeinGruenberg.Checked then
-  begin
-    cbKeinGruenberg_kein_Wetterau.Checked := False;
-    EditNoGo.Text := '70, 71, 72, 74, 77, 78, 79';
-    ShowMessage('Bitte neu starten, damit die Änderungen wirksam werden!!');
-  end;
-end;
-
-procedure TForm1.cbKeinGruenberg_kein_WetterauChange(Sender: TObject);
-begin
-  if cbKeinGruenberg_kein_Wetterau.Checked then
-  begin
-    cbKeinGruenberg.Checked := False;
-    EditNoGo.Text := '70, 71, 72, 74, 77, 78, 79, 50, 51, 52, 53, 54, 55, 56, 57';
-    ShowMessage('Bitte neu starten, damit die Änderungen wirksam werden!!' +
-      NL + 'Achtung: durch Linie 56 ist auch kein Kahlgrund dabei!!');
   end;
 end;
 
@@ -2523,12 +3009,17 @@ begin
 
     BM := QFaks.GetBookmark;
 
+    ProgressBar1.Position:=0;
+    ProgressBar1.Max:=QFaks.RecordCount;
+
+
     QFaks.First;
 
     while not QFaks.EOF do
     begin
       lst.Add(QFaks.FieldByName('LINIE').AsString);
       QFaks.Next;
+      ProgressBar1.Position:=QFaks.RecNo;
     end;
 
     (* nur unbekannte Linien zu ListBoxKnownLines hinzufügen *)
@@ -2546,10 +3037,14 @@ begin
     Mem.CopyToClipboard;
     QFaks.GotoBookmark(BM);
 
+    ProgressBar1.Position:=0;
+    Application.ProcessMessages;
+
+
     if lst.Count > 0 then
     begin
       if Messagedlg('Sollen diese neuen Linien' + NL + lst.Text + NL +
-        'Auf der Seite ''Einstellungen'' der Liste bekannter Linien himnzugefügt werden?'
+        'Auf der Seite ''Einstellungen'' der Liste bekannter Linien hinzugefügt werden?'
         ,
         mtConfirmation, [mbYes, mbNo], 0) = mrYes then
       begin
@@ -2562,9 +3057,13 @@ begin
       ShowMessage('Alle Linien sind bereits bekannt. Vorsicht Linie 901 und so''n Mist vor Import AmisData löschen!'
         + NL + lst.Text);
 
+    (* prüfe auf Mandant-Linie Duplikate *)
+    if Messagedlg('In AmisData darfs ja keine doppelten LinienNummern geben, soll Mandant/Linie als Liste angezeigt werden?',mtConfirmation,[mbYes,mbNo],0)= mrYes then
+     LinieJeMandant(Sender);
 
-
-
+    (* Letzte AusfÜhrung von Check-Linien in Ini speichern.
+       Wird bei QFaks.AfterOpen geprüft *)
+    IniPropStorage1.StoredValue['CheckLinie'] := DateTimeToStr(Date);
   finally
     Nei;
     QFaks.FreeBookmark(BM);
@@ -2576,8 +3075,9 @@ procedure TForm1.DateEditVonAcceptDate(Sender: TObject; var ADate: TDateTime;
   var AcceptDate: boolean);
 begin
   try
-    RemoveFilterClick(Sender);
     AcceptDate := True;
+    (* Filter entfernen -> Daten neu einlesen *)
+    RemoveFilterClick(Sender);
     StatusBar1.SimpleText :=
       'Filter wurde entfernt, bitte den SQL-Code ggf. kontrollieren!!';
   finally
@@ -2596,6 +3096,7 @@ var
 begin
   try
     try
+
 
       if Messagedlg(
         'Sollen die Datensätze als nach AmisData exportiert gekennzeichnet werden?',
@@ -2660,10 +3161,6 @@ begin
       QFaks.Refresh;
 
       QFaks.First;
-      (* letztes Buchungsdatum und Buchungszeit in globaler Variable speichern *)
-      //MaxBuchungsDatum := QFaks.FieldByName('Buchungsdatum').AsString;
-      MaxBuchungsDatum := QFaks.FieldByName('Buchungsdatum').AsString +
-        ' ' + QFaks.FieldByName('BuchungsZeit').AsString;
 
       QFaks.DisableControls;
       NichtGefunden := 0;
@@ -2702,15 +3199,19 @@ begin
             QFaks.FieldByName('DatumFahrt').AsDateTime;
 
           (* Nur für Butzbach exportieren wir VertriebsHSTIdent statt HSTSTARTIDENT *)
-          if (QFaks.FieldByName('ID_F2MANDANT').AsInteger = 1) then
-          begin
-            //if QFaks.FieldByName('HSTSTARTIDENT').isNull then
-            Dbf1.FieldByName('HALTNR').AsString :=
-              QFaks.FieldByName('VertriebsHSTIdent').AsString;
-          end
+          //if (QFaks.FieldByName('ID_F2MANDANT').AsInteger = 1) then
+          //begin
+
+          (* Keine Ahnung ob das besser ist *)
+          //if ((QFaks.FieldByName('HSTSTARTIDENT').isNull) and (QFaks.FieldByName('VertriebsHSTIdent').AsInteger > 0)) then
+          if (QFaks.FieldByName('HSTSTARTIDENT').isNull) then
+            Dbf1.FieldByName('HALTNR').AsString := QFaks.FieldByName('VertriebsHSTIdent').AsString
           else
-            Dbf1.FieldByName('HALTNR').AsString :=
-              QFaks.FieldByName('HSTSTARTIDENT').AsString;
+            Dbf1.FieldByName('HALTNR').AsString := QFaks.FieldByName('HSTSTARTIDENT').AsString;
+
+          (* sicherstellen, dass die HALTNR maximal 5 Zeichen hat *)
+          if length(Dbf1.FieldByName('HALTNR').AsString) > StrToInt(Edit_Max_HSTIDENT.Text) then
+             Dbf1.FieldByName('HALTNR').AsString := copy(Dbf1.FieldByName('HALTNR').AsString,1,StrToInt(Edit_Max_HSTIDENT.Text));
 
           Dbf1.FieldByName('SZONE').AsString :=
             QFaks.FieldByName('TZSTARTIDENT').AsString;
@@ -2879,7 +3380,7 @@ begin
 
         (* Explorer *)
         if Messagedlg(IntToStr(z) + ' Datensätze wurden geschrieben in: ' +
-          NL + NL + FName + NL + NL +
+          NL + NL + FName + NL + 'Die Haltestellennummer wurde ggf. auf ' + Edit_Max_HSTIDENT.Text + ' Zeichen gekürzt!' + NL + NL +
           'Soll die Datei im Dateimanager Explorer angezeigt werden?',
           mtConfirmation, [mbYes, mbNo], 0) = mrYes then
         begin
@@ -3051,15 +3552,18 @@ begin
   QFaks.Filter := Filter;
   QFaks.Filtered := True;
 
-  if FilterCombo.Items.IndexOf(Filter) = -1 then;
-  FilterCombo.Items.Add(QFaks.Filter);
+  AddFilterHistory(Filter);
 
-  FilterCombo.Text := Filter;
 
   ShowFilterInfo(True);
 
   (* zum ersten Datensatz springen *)
   QFaks.First;
+
+  ShowRecordCount(Sender);
+
+  Application.ProcessMessages;
+
 
 end;
 
@@ -3082,15 +3586,17 @@ begin
   QFaks.Filter := Filter;
   QFaks.Filtered := True;
 
-  if FilterCombo.Items.IndexOf(Filter) = -1 then;
-  FilterCombo.Items.Add(QFaks.Filter);
-
-  FilterCombo.Text := Filter;
+  AddFilterHistory(Filter);
 
   ShowFilterInfo(True);
 
   (* zum letzten Datensatz springen *)
   QFaks.Last;
+
+  ShowRecordCount(Sender);
+
+  Application.ProcessMessages;
+
 
 end;
 
@@ -3098,8 +3604,9 @@ procedure TForm1.FilterComboKeyDown(Sender: TObject; var Key: word; Shift: TShif
 begin
   if Key = VK_RETURN then
   begin
-    if QFaks.Filtered then
-      QFaks.Filtered := False;
+    DBGridFaks.SetFocus;
+
+    if QFaks.Filtered then QFaks.Filtered := False;
 
     FilterCombo.Text := trim(FilterCombo.Text);
 
@@ -3109,11 +3616,14 @@ begin
     begin
       QFaks.Filtered := True;
 
-      if ((FilterCombo.Items.IndexOf(FilterCombo.Text) = -1) and (FilterCombo.Text > '')) then;
-      FilterCombo.Items.Add(FilterCombo.Text);
-    end;
+      (* zur Liste der Filter hinzufügen *)
+      AddFilterHistory(QFaks.Filter);
 
-    ShowFilterInfo(True);
+      ShowFilterInfo(True);
+    end
+    else
+    ShowFilterInfo(false);
+
 
   end;
 
@@ -3127,24 +3637,17 @@ begin
     QFaks.Filtered := False;
 
 
-  (* den Filter zusammensetzen *)
-  //Filter := QFaks.FieldByName('RID').FieldName + '=''' +
-  //          ListBox_nicht_gefunden.Items[ListBox_nicht_gefunden.ItemIndex] + '''' ;
-
 
   QFaks.Filter := Filter;
   QFaks.Filtered := True;
 
-  if FilterCombo.Items.IndexOf(Filter) = -1 then;
-  FilterCombo.Items.Add(QFaks.Filter);
+  AddFilterHistory(QFaks.Filter);
 
-  FilterCombo.Text := Filter;
+  ShowFilterInfo(true);
+
 
   if QFaks.RecordCount = 1 then
     PageControl1.ActivePage := TabDaten;
-  //else
-  //   ShowMessage('Die RID ''' + ListBox_nicht_gefunden.Items[ListBox_nicht_gefunden.ItemIndex] +
-  //     ''' steht nicht in den aktuellen Daten. Evtl aus einem Vormonat?');
 end;
 
 procedure TForm1.FormActivate(Sender: TObject);
@@ -3167,11 +3670,11 @@ begin
     warning := True;
     msg := msg + ' Das Database-Name existiert nicht.';
   end;
-  if trim(lbHostname.Text) = '' then
-  begin
-    warning := True;
-    msg := msg + ' Der Hostname existiert nicht.';
-  end;
+  //if trim(lbHostname.Text) = '' then
+  //begin
+  //  warning := True;
+  //  msg := msg + ' Der Hostname existiert nicht.';
+  //end;
   if trim(lbPassword.Text) = '' then
   begin
     warning := True;
@@ -3236,11 +3739,8 @@ begin
 
   (* FilterCombo-Einträge ggf. löschen *)
   while FilterCombo.Items.Count >= 20 do
-    FilterCombo.Items.Delete(0);
+    FilterCombo.Items.Delete(FilterCombo.Items.Count -1);
 
-
-  (* Lokale ini mit ini in Monatsmeld vergleichen *)
-  CheckIniFile(Sender);
 
   (* LinienErsetzungen für AmisData DBF-Export speichern *)
   GridReplaceLineNumber.SaveToCSVFile(ChangeFileExt(Application.ExeName,'_ErsetzungLinienNummern.csv'),';');
@@ -3266,7 +3766,7 @@ var
   d, m, y, d1, m1, y1: word;
   (* Vormonat und VorVormonat!!!! *)
   DatumVon, DatumBis, DatumVonVormonat, DatumBisVormonat: TDateTime;
-  sql, quotedNOGO, line, JBuchungsDatum, JBuchungsZeit, ExtraFilter : string;
+  sql,  line, JBuchungsDatum, JBuchungsZeit, ExtraFilter : string;
   x: integer;
   F: TFloatField;
   dbf: TDbf;
@@ -3280,13 +3780,13 @@ begin
   try
     ZConnection1.Connected := False;
 
+
     //SQLTransaction2.Active := False;
     QFaks.Close;
 
-    if ((trim(lbHostName.Text) <> '') or (trim(lbDatabase.Text) <> '') or
+    if ((trim(lbDatabase.Text) <> '') or
       (trim(lbUserName.Text) <> '') or (trim(lbPassword.Text) <> '')) then
     begin
-      ZConnection1.HostName := lbHostName.Text;
       ZConnection1.Database := lbDatabase.Text;
       ZConnection1.User := lbUserName.Text;
       ZConnection1.Password := lbPassword.Text;
@@ -3294,20 +3794,11 @@ begin
     else
     begin
       PageControl1.ActivePage := TabConfig;
-      lbHostName.SetFocus;
-      lbHostName.SelectAll;
+      lbDataBase.SetFocus;
+      lbDataBase.SelectAll;
       exit;
     end;
 
-    if trim(EditNoGo.Text) <> '' then
-    begin
-      if Messagedlg(
-        'Diese Linien werden NICHT(!!) berücksichtigt (ggf. Einstellungen bearbeiten)'
-        +
-        NL + NL + EditNoGo.Text, mtConfirmation, [mbYes, mbNo], 0) = mrNo then
-        exit;
-
-    end;
 
     jei;
     (* Vormonat einstellen *)
@@ -3353,54 +3844,45 @@ begin
 
     FirstRun := True;
 
-    (* welche Linien sollen NICHT berücksichtigt werden? *)
-
-    if trim(EditNoGo.Text) = '' then
-    begin
-      NoGo := ' AND ';
-    end
-    else
-    begin
-      (* da es so bescheuerte Liniennummern wie 31/32 gibt,
-         die Liniennummer in Quotes setzen:
-
-         Achtung: WordCount zählt 1-basiert!!!
-         *)
-      for x := 1 to WordCount(EditNoGo.Text, [',']) do
-      begin
-        if x = 1 then
-          quotedNOGO := QuotedStr(trim(ExtractWord(x, EditNoGo.Text, [','])))
-        else
-          quotedNOGO := quotedNOGO + ',' +
-            QuotedStr(Trim(ExtractWord(x, EditNoGo.Text, [','])));
-      end;
-
-      NoGo := ' AND LINIE NOT IN(' + quotedNOGO + ') AND ';
-      //ShowMessage('Nogo = ' + Nogo);
-    end;
-
 
     ExtraFilter := '/* TO_CHAR(Zeit, ''HH24:MI:SS'') BETWEEN ''23:00:00'' AND ''23:30:00'' AND */';
 
     (* sehr tückisch ist die Klammersetzung für die Logik der SQL Verarbeitung!!!!!!! *)
+    //sql :=
+    //  'SELECT RID, VID, ID_F2MANDANT, DATUM, TO_CHAR(ZEIT, ''HH24:MI:SS'') AS ZEIT, DATUMFAHRT, Buchungsdatum, '
+    //  + NL +
+    //  ' TO_CHAR(BUCHUNGSZEIT, ''HH24:MI:SS'') AS BUCHUNGSZEIT ,  JOURNAL, MDEIDINTERN, BELEGNR, Bemerkung, PNR, '
+    //  + NL + 'LINIE, FKART, anzahl, Einzelpreis, ' +
+    //  NL + '  BETRAG, GAIDENT, GATTUNGSART, PreisStDruck, PREISSTIDENT, ' +
+    //  NL + 'Zahlart, Storno, DatumZeit, TarifVersion, CAST(NETZ AS VARCHAR(10)) AS NETZ, ORTStart, OrtZiel, PV, LfdNrPV, '
+    //  + NL +
+    //  'Storniert, Sortennummer, TZSTARTIDENT, TZZIELIDENT, TZVIAIDENT, HSTSTARTIDENT,HSTSTART, HSTZIELIDENT, HSTZIEL, VERTRIEBSHSTIDENT, Vertragsnr '
+    //  + NL + 'FROM F2FSV  WHERE ' + ExtraFilter + ' ID_F2MANDANT <> ''3'' AND (PV=''RMV'') AND TarifVersion >='
+    //  +
+    //  IntToStr(TarifVersion) + ' AND ((DATUM BETWEEN ' +
+    //  NL + '''' + DateTimeToStr(DateEditVon.Date) + ''' AND ' + NL +
+    //  '''' + DateTimeToStr(DateEditBis.Date) + ''')' + NL +
+    //  ' OR ( Vertragsnr is NULL AND DATUM <= ' + NL + '''' +
+    //  DateTimeToStr(DateEditBis.Date) + ''' AND DATUM >=''01.01.' +
+    //  IntToStr(Yearof(DateEditVon.Date)) + '''))';
+
     sql :=
-      'SELECT RID, VID, ID_F2MANDANT, DATUM, TO_CHAR(ZEIT, ''HH24:MI:SS'') AS ZEIT, DATUMFAHRT, Buchungsdatum, '
+      'SELECT RID, VID, ID_F2MANDANT, DATUM,  ZEIT, DATUMFAHRT, Buchungsdatum, '
       + NL +
-      ' TO_CHAR(BUCHUNGSZEIT, ''HH24:MI:SS'') AS BUCHUNGSZEIT ,  JOURNAL, MDEIDINTERN, BELEGNR, Bemerkung, PNR, '
+      '  BUCHUNGSZEIT ,  JOURNAL, MDEIDINTERN, BELEGNR, Bemerkung, PNR, '
       + NL + 'LINIE, FKART, anzahl, Einzelpreis, ' +
       NL + '  BETRAG, GAIDENT, GATTUNGSART, PreisStDruck, PREISSTIDENT, ' +
-      NL + 'Zahlart, Storno, DatumZeit, TarifVersion, Netz, ORTStart, OrtZiel, PV, LfdNrPV, '
+      NL + 'Zahlart, Storno, DatumZeit, TarifVersion, CAST(NETZ AS VARCHAR(10)) AS NETZ, ORTStart, OrtZiel, PV, LfdNrPV, '
       + NL +
-      'Storniert, Sortennummer, TZSTARTIDENT, TZZIELIDENT, TZVIAIDENT, HSTSTARTIDENT, HSTZIELIDENT, VERTRIEBSHSTIDENT, Vertragsnr '
-      + NL + 'FROM F2FSV  WHERE ' + ExtraFilter + ' ID_F2MANDANT IN(' + EditMandanten.Text + ') AND PV<>''HLB'' AND (PV=''RMV'') AND TarifVersion >='
+      'Storniert, Sortennummer, TZSTARTIDENT, TZZIELIDENT, TZVIAIDENT, HSTSTARTIDENT,HSTSTART, HSTZIELIDENT, HSTZIEL, VERTRIEBSHSTIDENT, Vertragsnr '
+      + NL + 'FROM F2FSV  WHERE ' + ExtraFilter + ' ID_F2MANDANT <> ''3'' AND (PV=''RMV'') AND TarifVersion >='
       +
-      IntToStr(TarifVersion) + '  ' + NOGO + ' ((DATUM BETWEEN ' +
+      IntToStr(TarifVersion) + ' AND ((DATUM BETWEEN ' +
       NL + '''' + DateTimeToStr(DateEditVon.Date) + ''' AND ' + NL +
       '''' + DateTimeToStr(DateEditBis.Date) + ''')' + NL +
-      ' OR ( Vertragsnr is null AND DATUM <= ' + NL + '''' +
+      ' OR ( Vertragsnr is NULL AND DATUM <= ' + NL + '''' +
       DateTimeToStr(DateEditBis.Date) + ''' AND DATUM >=''01.01.' +
       IntToStr(Yearof(DateEditVon.Date)) + '''))';
-
 
 
 
@@ -3413,20 +3895,26 @@ begin
     //ShowMessage(sql);
 
     //exit;
-
-    ZConnection1.Connected := True;
-    QFaks.Active := True;
-    PageControl1.ActivePage := TabDaten;
+    try
+      ZConnection1.Connected := True;
+      QFaks.Active := True;
+      PageControl1.ActivePage := TabDaten;
+    except
+      on E: Exception do
+      begin
+       ShowMessage('Fehler:' + NL + E.Message );
+      end;
+    end;
 
 
 
     (* SQL in History speichern *)
     line := StringsToStr(Memo1.Lines, '°', True);
-    //if (SQLHistory.IndexOf(Line) = -1) then
-    SQLHistory.Add(line);
-
-    SQLHistoryIndex := SQLHistory.Count;
-
+    if (SQLHistory.IndexOf(Line) = -1) then
+    begin
+      SQLHistory.Add(line);
+      SQLHistoryIndex := SQLHistory.Count -1;
+    end;
 
 
 
@@ -3641,7 +4129,6 @@ begin
         for row := 0 to DBGridFaks.SelectedRows.Count - 1 do
         begin
           GotoBookmark(TBookMark(DBGridFaks.SelectedRows[row]));
-          ;
 
           for x := 0 to Fieldcount - 1 do
           begin
@@ -3661,7 +4148,6 @@ begin
             end;
           end;
           Zeile := PWideChar(UTF8Decode(Zeile));
-          Writeln(F, Zeile);
           Writeln(F, Zeile);
           Inc(recs);
           ProgressBar1.Position := recs;
@@ -3919,6 +4405,119 @@ begin
     QFaks.EnableControls;
 
   end;
+
+end;
+
+(* Die Datei aus Elgeba-FKE wird aktualisiert:
+
+   bei MTV-Sued kommen auch Verkaufsdatensätze mit LinienNummern
+   401 ... die in 991401 usw übersetzt weden müssen
+   Übersetzung laut Tabelle GridReplaceLineNumber
+
+
+*)
+procedure TForm1.UpdateElgebaLinienNrClick(Sender: TObject);
+var Elgeba : TDBF;
+    x : integer;
+begin
+  try
+    Elgeba := TDBF.Create(Application.MainForm);
+    OpenDialog1.FilterIndex:=2;
+    if DirectoryExists('F:\AMISdata\Import\Elgeba-FKE\') then
+    OpenDialog1.InitialDir:='F:\AMISdata\Import\Elgeba-FKE\'
+    else
+    OpenDialog1.InitialDir:='F:\AMISdata\AMISdata\Import\Elgeba-FKE\';
+
+
+  if Messagedlg('Ab 11.12.2016. Sollen die LinienNummern für MTK-Süd laut Tabelle auf Register ''Einstellungen'' wirklich berichtigt werden?',mtConfirmation,[mbYes,mbNo],0)= mrNo then exit;
+
+  if OpenDialog1.Execute then
+  begin
+    Jei;
+    Elgeba.TableName:=OpenDialog1.FileName;
+    Elgeba.Open;
+    ProgressBar1.Position:=0;
+    ProgressBar1.Max:=Elgeba.RecordCount;
+    StatusBar1.SimpleText :='In Datei ' + Elgeba.TableName + '=' + IntToStr(Elgeba.RecordCount) + ' Datensätze werden bei LinienNummern korrigiert!';
+    Application.ProcessMessages;
+    Elgeba.First;
+
+    while not Elgeba.EOF do
+    begin
+      (* zu ersetzende LinienNummer nachschlagen *)
+      if Elgeba.FieldByName('Datumv').AsDateTime >= StrToDate('11.12.2016') then
+      begin
+        Elgeba.Edit;
+        Elgeba.FieldByName('Linie').AsString := LookUpStringGrid(GridReplaceLineNumber,'5',Elgeba.FieldByName('LINIE').AsString);
+        Elgeba.Post;
+      end;
+
+
+      ProgressBar1.Position := Elgeba.RecNo;
+      Elgeba.Next;
+    end;
+    Elgeba.Close;
+    ShowMessage('Die LinienNummern für MTK-Süd wurden aktualisiert!');
+  end;
+
+  finally
+    NEI;
+    FreeAndNil(Elgeba);
+    ProgressBar1.Position:=0;
+    Application.ProcessMessages;
+
+  end;
+end;
+
+procedure TForm1.UpDown1Click(Sender: TObject; Button: TUDBtnType);
+begin
+
+  if Button = btNext then
+  begin
+   if SQLHistoryIndex < SQLHistory.Count -1  then
+   begin
+     inc(SQLHistoryIndex,1);
+
+     StrToStrings(SQLHistory[SQLHistoryIndex], '°', Memo1.Lines, True);
+
+     case Memo1.Color of
+       clWhite:
+         Memo1.Color := clMoneyGreen;
+       clSkyBlue:
+         Memo1.Color := clMoneyGreen;
+       clMoneyGreen:
+         Memo1.Color := clSkyBlue;
+     end;
+
+
+   end;
+
+  end
+  else
+  begin
+    if SQLHistoryIndex > 0 then
+    begin
+      dec(SQLHistoryIndex,1);
+
+      StrToStrings(SQLHistory[SQLHistoryIndex], '°', Memo1.Lines, True);
+
+      case Memo1.Color of
+        clWhite:
+          Memo1.Color := clSkyBlue;
+        clSkyBlue:
+          Memo1.Color := clMoneyGreen;
+        clMoneyGreen:
+          Memo1.Color := clSkyBlue;
+      end;
+
+
+    end;
+
+
+  end;
+
+  StatusBar1.SimpleText:='SQL-History Eintrag ''' + IntToStr(SQLHistoryIndex +1) + '/' + IntToStr(SQLHistory.Count);
+  Application.ProcessMessages;
 
 end;
 

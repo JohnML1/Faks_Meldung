@@ -1,0 +1,192 @@
+object Form2: TForm2
+  Left = 392
+  Height = 492
+  Top = 259
+  Width = 1147
+  Caption = 'Felder der Tabelle'
+  ClientHeight = 492
+  ClientWidth = 1147
+  KeyPreview = True
+  OnKeyDown = FormKeyDown
+  OnShow = FormShow
+  LCLVersion = '1.9.0.0'
+  object Panel1: TPanel
+    Left = 0
+    Height = 34
+    Top = 0
+    Width = 1147
+    Align = alTop
+    Caption = 'Setzen Sie ein Häkchen vor die einzufügenden FeldNamen'
+    TabOrder = 0
+  end
+  object Panel2: TPanel
+    Left = 0
+    Height = 27
+    Top = 465
+    Width = 1147
+    Align = alBottom
+    AutoSize = True
+    ClientHeight = 27
+    ClientWidth = 1147
+    TabOrder = 1
+    object DBNavigator1: TDBNavigator
+      Left = 1
+      Height = 25
+      Top = 1
+      Width = 241
+      BevelOuter = bvNone
+      ChildSizing.EnlargeHorizontal = crsScaleChilds
+      ChildSizing.EnlargeVertical = crsScaleChilds
+      ChildSizing.ShrinkHorizontal = crsScaleChilds
+      ChildSizing.ShrinkVertical = crsScaleChilds
+      ChildSizing.Layout = cclLeftToRightThenTopToBottom
+      ChildSizing.ControlsPerLine = 100
+      ClientHeight = 25
+      ClientWidth = 241
+      DataSource = DataSource1
+      Options = []
+      TabOrder = 0
+      VisibleButtons = [nbFirst, nbPrior, nbNext, nbLast, nbCancel, nbRefresh]
+    end
+  end
+  object CheckListBox1: TCheckListBox
+    Left = 0
+    Height = 139
+    Top = 34
+    Width = 1147
+    Align = alTop
+    ItemHeight = 0
+    OnClick = CheckListBox1Click
+    TabOrder = 2
+  end
+  object RadioGroup1: TRadioGroup
+    Left = 0
+    Height = 48
+    Top = 173
+    Width = 1147
+    Align = alTop
+    AutoFill = True
+    Caption = 'Feldnamen markieren:'
+    ChildSizing.LeftRightSpacing = 6
+    ChildSizing.EnlargeHorizontal = crsHomogenousChildResize
+    ChildSizing.EnlargeVertical = crsHomogenousChildResize
+    ChildSizing.ShrinkHorizontal = crsScaleChilds
+    ChildSizing.ShrinkVertical = crsScaleChilds
+    ChildSizing.Layout = cclLeftToRightThenTopToBottom
+    ChildSizing.ControlsPerLine = 3
+    ClientHeight = 27
+    ClientWidth = 1143
+    Columns = 3
+    Items.Strings = (
+      'Alle markieren'
+      'Keins markieren'
+      'Markierung umkehren'
+    )
+    OnClick = RadioGroup1Click
+    TabOrder = 3
+  end
+  object Panel3: TPanel
+    Left = 0
+    Height = 27
+    Top = 221
+    Width = 1147
+    Align = alTop
+    AutoSize = True
+    ClientHeight = 27
+    ClientWidth = 1147
+    TabOrder = 4
+    object BtnInsertFieldNames: TButton
+      Left = 1
+      Height = 25
+      Hint = '|fügt die Häkchen-Feldnamen in den SQL-Code ein'
+      Top = 1
+      Width = 146
+      Caption = '&Feldnamen einfügen'
+      OnClick = BtnInsertFieldNamesClick
+      TabOrder = 0
+    end
+    object Label1: TLabel
+      Left = 977
+      Height = 25
+      Top = 1
+      Width = 169
+      Align = alRight
+      Alignment = taCenter
+      AutoSize = False
+      Caption = 'Details zu obigen Feldnamen:'
+      Font.Height = 16
+      Layout = tlCenter
+      ParentColor = False
+      ParentFont = False
+    end
+  end
+  object DBGrid1: TDBGrid
+    Left = 0
+    Height = 217
+    Top = 248
+    Width = 1147
+    Align = alClient
+    Color = clWindow
+    Columns = <>
+    DataSource = DataSource1
+    Options = [dgTitles, dgIndicator, dgColumnResize, dgColumnMove, dgColLines, dgRowLines, dgTabs, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit, dgDisableDelete, dgDisableInsert, dgRowHighlight, dgDblClickAutoSize]
+    PopupMenu = PopupFieldProps
+    TabOrder = 5
+  end
+  object DataSource1: TDataSource
+    DataSet = ZReadOnlyQuery1
+    left = 93
+    top = 328
+  end
+  object ZReadOnlyQuery1: TZReadOnlyQuery
+    Connection = Form1.ZConnection1
+    AfterOpen = ZReadOnlyQuery1AfterOpen
+    SQL.Strings = (
+      'SELECT a.OWNER,'
+      '  a.TABLE_NAME,'
+      '  a.COLUMN_NAME,'
+      '  a.DATA_TYPE,'
+      '  a.DATA_LENGTH,'
+      '  a.DATA_PRECISION,'
+      '  a.DATA_SCALE,'
+      '  a.NULLABLE,'
+      '  a.DATA_DEFAULT,'
+      '  a.COLUMN_ID,'
+      '  c.comments'
+      'FROM SYS.ALL_TAB_COLUMNS a, sys.USER_COL_COMMENTS c'
+      'WHERE a.TABLE_NAME = ''F2FSV'' AND c.table_name=a.table_name AND c.column_name=a.column_name'
+      'ORDER BY a.COLUMN_ID'
+    )
+    Params = <>
+    left = 216
+    top = 328
+  end
+  object PopupFieldProps: TPopupMenu
+    left = 424
+    top = 328
+    object MnExport: TMenuItem
+      Caption = 'in Datei Exportieren'
+      Hint = '|angezeigte Daten in Datei exportieren'
+      OnClick = MnExportClick
+    end
+  end
+  object FPSExport1: TFPSExport
+    Dataset = ZReadOnlyQuery1
+    ExportFields = <>
+    FormatSettings.IntegerFormat = '%d'
+    FormatSettings.DecimalSeparator = ','
+    FormatSettings.CurrencySymbol = '€'
+    FormatSettings.CurrencyDigits = 0
+    FormatSettings.BooleanTrue = 'True'
+    FormatSettings.BooleanFalse = 'False'
+    FormatSettings.DateFormat = 'dd.MM.yyyy'
+    FormatSettings.TimeFormat = 'hh:nn'
+    FormatSettings.DateTimeFormat = 'dd.MM.yyyy hh:nn'
+    FormatSettings.ExportFormat = efXLS
+    FormatSettings.HeaderRow = True
+    FormatSettings.SheetName = 'Felder_F2FSV'
+    FromCurrent = False
+    left = 312
+    top = 328
+  end
+end

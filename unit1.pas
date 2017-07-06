@@ -459,6 +459,9 @@ end { resourceVersionInfo };
 
 procedure TForm1.ShowVersionInfo;
 begin
+
+// nur so zum Test wie Git funktioniert
+
   (* Application Version anzeigen *)
   Application.Mainform.Caption :=
     'FAKS2 Fahrscheinverkäufe ' + ' [ ' + resourceVersionInfo + ' ]';

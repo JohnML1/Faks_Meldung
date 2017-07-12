@@ -34,7 +34,7 @@ begin
     Tran.Active := true;
 
 
-    (* Begin TEST *)
+    (* Begin TEST  nur so als Test*)
     writeln('Tabelle F2FSV COUNT(*):');
     Q.SQL.Text := 'SELECT COUNT(*) FROM F2FSV';
     Q.Open;

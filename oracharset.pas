@@ -32,6 +32,30 @@ begin
     Q.DataBase := Conn;
     Conn.Open;
     Tran.Active := true;
+
+
+    (* Begin TEST *)
+    writeln('Tabelle F2FSV COUNT(*):');
+    Q.SQL.Text := 'SELECT COUNT(*) FROM F2FSV';
+    Q.Open;
+    Q.First;
+    while not (Q.EOF) do
+    begin
+      writeln('*****************');
+      for Col := 0 to Q.Fields.Count - 1 do
+      begin
+        try
+          writeln(Q.Fields[Col].DisplayLabel + ':');
+          writeln(Q.Fields[Col].AsString);
+        except
+          writeln('Error retrieving field ', Col);
+        end;
+      end;
+      Q.Next;
+    end;
+    Q.Close;
+
+    (* End TEST *)
  
     writeln('Server character set info:');
     Q.SQL.Text := 'SELECT value$ FROM sys.props$ WHERE name like ''NLS_%'' ';

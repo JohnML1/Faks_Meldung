@@ -190,6 +190,7 @@ type
     Label4: TLabel;
     Edit_Max_HSTIDENT: TLabeledEdit;
     Label5: TLabel;
+    Label6: TLabel;
     lbRecordCount: TLabel;
     lbDatabase: TLabeledEdit;
     lbPassword: TLabeledEdit;

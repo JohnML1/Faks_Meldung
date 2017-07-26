@@ -175,6 +175,7 @@ type
     DBNavigator2: TDBNavigator;
     DirectoryEdit1: TDirectoryEdit;
     EventLog1: TEventLog;
+    FilterCombo: TComboBox;
     GroupBox1: TGroupBox;
     GroupBox2: TGroupBox;
     ImageList1: TImageList;
@@ -190,10 +191,9 @@ type
     Label4: TLabel;
     Edit_Max_HSTIDENT: TLabeledEdit;
     Label5: TLabel;
-    Label6: TLabel;
-    lbRecordCount: TLabel;
     lbDatabase: TLabeledEdit;
     lbPassword: TLabeledEdit;
+    lbRecordCount: TLabel;
     lbUserName: TLabeledEdit;
     ListBoxKnownLines: TListBox;
     Mem: TEdit;
@@ -202,6 +202,7 @@ type
     DeleteSelected: TMenuItem;
     MenuAddLinie: TMenuItem;
     LookupStornos: TMenuItem;
+    MnSetAST_TarifVersion: TMenuItem;
     MnShowRecordCount: TMenuItem;
     MnManuelleBuchungen: TMenuItem;
     MNCheckLinieJeMandant: TMenuItem;
@@ -226,7 +227,6 @@ type
     Panel8: TPanel;
     PopupLinien: TPopupMenu;
     RID_as_Filter: TMenuItem;
-    FilterCombo: TComboBox;
     Pm_Search: TMenuItem;
     ProgressBar1: TProgressBar;
     RemoveFilter: TMenuItem;
@@ -311,6 +311,7 @@ type
     procedure MnManuelleBuchungenClick(Sender: TObject);
     procedure MnMarkExportedClick(Sender: TObject);
     procedure MnSearchClick(Sender: TObject);
+    procedure MnSetAST_TarifVersionClick(Sender: TObject);
     procedure MnShowRecordCountClick(Sender: TObject);
     procedure MnSucheLinienClick(Sender: TObject);
     procedure MnSumColumnClick(Sender: TObject);
@@ -762,8 +763,12 @@ begin
   begin
      FilterCombo.Items.Insert(0,item);
      FilterCombo.ItemIndex := 0;
+     FilterCombo.Refresh;
+     Application.ProcessMessages;
      Result := true;
-  end;
+  end
+  else
+  FilterCombo.ItemIndex := FilterCombo.Items.IndexOf(Item);
 end;
 
 procedure TForm1.ShowRecordCount(Sender: TObject);
@@ -2022,6 +2027,7 @@ end;
 procedure TForm1.IniPropStorage1RestoreProperties(Sender: TObject);
 begin
   TarifVersion := SpinEditTarifversion.Value;
+
 end;
 
 procedure TForm1.IniPropStorage1StoredValues1Restore(Sender: TStoredValue;
@@ -2282,7 +2288,8 @@ begin
   if QFaks.Filtered then  QFaks.Filtered := False;
 
   (* Linien Anrufsammeltaxi als Filter setzen *)
-  FilterCombo.Text:='(Linie=''404'' AND ID_F2MANDANT=''5'') OR (Linie=''818'' AND ID_F2MANDANT=''5'') OR (Linie=''835'' AND ID_F2MANDANT=''5'') OR (Linie=''836'' AND ID_F2MANDANT=''5'') OR (Linie=''837'' AND ID_F2MANDANT=''5'') OR (Linie=''46'' AND ID_F2MANDANT=''5'') OR (Linie=''66'' AND ID_F2MANDANT=''5'') OR (Linie=''67'' AND ID_F2MANDANT=''5'')';
+  //FilterCombo.Text:='(Linie=''404'' AND ID_F2MANDANT=''5'') OR (Linie=''818'' AND ID_F2MANDANT=''5'') OR (Linie=''835'' AND ID_F2MANDANT=''5'') OR (Linie=''836'' AND ID_F2MANDANT=''5'') OR (Linie=''837'' AND ID_F2MANDANT=''5'') OR (Linie=''46'' AND ID_F2MANDANT=''5'') OR (Linie=''66'' AND ID_F2MANDANT=''5'') OR (Linie=''67'' AND ID_F2MANDANT=''5'')';
+  FilterCombo.Text:='Bemerkung2=''AST'' OR MDEID=''Notfahrkarten''';
 
   QFaks.Filter := FilterCombo.Text;
 
@@ -2294,6 +2301,7 @@ begin
   ShowFilterInfo(True);
 
   ShowRecordCount(Sender);
+
 
 
 end;
@@ -2487,6 +2495,27 @@ begin
   end;
 
 
+end;
+
+procedure TForm1.MnSetAST_TarifVersionClick(Sender: TObject);
+var OldSQL : string;
+begin
+  try
+   (* bei Anrufsammeltaxi die Tarifversion setzen *)
+   Jei;
+   (* alte SQL sichern *)
+   OldSQL := ZUpDateRid.SQL.Text;
+   ZUpDateRid.SQL.TEXT := 'UPDATE f2fsv SET TARIFVERSION=' + IntToStr(SpinEditTarifversion.Value) + ' WHERE (Bemerkung2=''AST'' OR MDEID=''Notfahrkarten'') AND DATUM>=' + QuotedStr('01.01.' + IntToStr(YearOf(DateEditVon.Date)));
+   ZUpDateRid.ExecSQL;
+   ShowMessage('Anzahl betroffener Datensätze: ' + IntToStr(ZUpDateRid.RowsAffected));
+   EventLog1.Log('AST Tarifversion wurde neu gesetzt mit: ' + ZUpDateRid.SQL.TEXT);
+  finally
+    Nei;
+    (* SQL rücksichern *)
+    ZUpDateRid.SQL.Text := OldSQL;
+    QFaks.Refresh;
+
+  end
 end;
 
 procedure TForm1.MnShowRecordCountClick(Sender: TObject);
@@ -2827,6 +2856,8 @@ begin
   x := trunc(Date - StrToDateDef(IniPropStorage1.StoredValue['CheckLinie'], 0));
   if x >= 30 then
    ShowMessage('Sie haben Check-Linien seit ' + IntToStr(x) + ' Tagen nicht mehr ausgeführt' + NL +
+   'Auch die TarifVersion für Anrufsammeltaxi sollte aktualisiert werden (Rechtsklick: Mehr/Setze bei AST die Tarifversion)'
+   + NL +
    'Bitte nachholen');
 
    ShowRecordCount(self);
@@ -2939,7 +2970,7 @@ begin
     'Faks Spalte RID hat den Wert ' + RowID + NL + NL +
     'Oft hilft auch ein Neustart der Anwendung!!');
   (* Oracle LogFile anzeigen *)
-  //OpenLogFileClick(Sender);
+  OpenLogFileClick(Sender);
 end;
 
 procedure TForm1.Button2Click(Sender: TObject);
@@ -3304,16 +3335,24 @@ begin
 
 
           (* Sortennummer *)
-          if ((QFaks.FieldByName('PV').AsString = 'RMV') and
-            (QFaks.FieldByName('TarifVersion').AsInteger < TarifVersion)) then
-          begin
-            //if QFaks.FieldByName('SORTENNUMMER').IsNull then
-            Dbf1.FieldByName('SORTE').AsString :=
-              FormatFloat('00', QFaks.FieldByName('GAIDENT').AsFloat) +
-              FormatFloat('00', QFaks.FieldByName('PreisStDruck').AsFloat);
-          end
-          else
-          begin
+          //if ((QFaks.FieldByName('PV').AsString = 'RMV') and
+          //  (QFaks.FieldByName('TarifVersion').AsInteger < TarifVersion)) then
+          //begin
+          //  //if QFaks.FieldByName('SORTENNUMMER').IsNull then
+          //  Dbf1.FieldByName('SORTE').AsString :=
+          //    FormatFloat('00', QFaks.FieldByName('GAIDENT').AsFloat) +
+          //    FormatFloat('00', QFaks.FieldByName('PreisStDruck').AsFloat);
+          //end
+          //else
+          //begin
+
+            (* Sonderfall Anrufsammeltaxi OHNE Sortennummer *)
+            if ((QFaks.FieldByName('MDEID').AsString='Notfahrkarten') and (QFaks.FieldByName('SORTENNUMMER').isNull)) then
+            begin
+               if QFaks.FieldByName('GAIDENT').AsString = '29' then Dbf1.FieldByName('SORTE').AsString :='3300';
+               if QFaks.FieldByName('GAIDENT').AsString = '27' then Dbf1.FieldByName('SORTE').AsString :='3100';
+            end
+            else
             Dbf1.FieldByName('SORTE').AsString := QFaks.FieldByName('SORTENNUMMER').AsString;
 
             (* Sonderfall Hessenticket *)
@@ -3325,7 +3364,7 @@ begin
         FormatFloat('00', QFaks.FieldByName('PreisStDruck').AsFloat);
         *)
 
-          end;
+         // end; (* Sortennummer *)
 
 
           //end;
@@ -3628,6 +3667,10 @@ begin
     else
     ShowFilterInfo(false);
 
+    ShowRecordCount(Sender);
+
+    Application.ProcessMessages;
+
 
   end;
 
@@ -3658,6 +3701,7 @@ procedure TForm1.FormActivate(Sender: TObject);
 var
   warning: boolean;
   msg: string;
+  j : integer;
 begin
   (* das in FormCreate führt zu Access Violation!! *)
   ShowVersionInfo;
@@ -3719,6 +3763,21 @@ begin
 
   (* ZSQLMonitor LogFile auf 3000 Zeilen kürzen *)
   ShortenLog(3000, Sender);
+
+  (* Checken, ob die Tarifversion richtig eingestellt ist: 2017 war es die 36 *)
+  j := TarifVersion;
+  (* korrekte Tarifversion berechnen: zu 36 die Differenz von Aktuellem Jahr - 2017 hinzuzählen  *)
+  j := 36 + Yearof(Date) -2017;
+
+  if  j <> TarifVersion then
+  begin
+     PageControl1.ActivePage := TabConfig;
+     SpinEditTarifversion.SetFocus;
+     ShowMessage('Die Tarifverion: ' + IntToStr(TarifVersion) + ' scheint nicht zu stimmen.' + NL +
+     'Im Jahr 2017 wars die TarifVersion 36, also Sollte es im Jahr ' + IntToStr(Yearof(Date)) + ' die ' +
+     IntToStr(j) + ' sein.');
+  end;
+
 end;
 
 procedure TForm1.FormClose(Sender: TObject; var CloseAction: TCloseAction);
@@ -3777,6 +3836,8 @@ var
   list: TStringList;
 begin
   (* CAST(Betrag AS  NUMBER(8,2)) AS BETRAG *)
+
+  (* Datum aus RID extrahieren: TO_DATE(SUBSTR(RID,1,8),'YYYYMMDD') AS RID_DATUM *)
 
   //ShowMessage('Verbinden!!');
   {$IFDEF WINDOWS}
@@ -3873,7 +3934,7 @@ begin
     sql :=
       'SELECT RID, VID, ID_F2MANDANT, DATUM,  ZEIT, DATUMFAHRT, Buchungsdatum, '
       + NL +
-      '  BUCHUNGSZEIT ,  JOURNAL, MDEIDINTERN, BELEGNR, Bemerkung, PNR, '
+      '  BUCHUNGSZEIT, JOURNAL,MDEID, MDEIDINTERN, BELEGNR, Bemerkung, Bemerkung2, PNR, '
       + NL + 'LINIE, FKART, anzahl, Einzelpreis, ' +
       NL + '  BETRAG, GAIDENT, GATTUNGSART, PreisStDruck, PREISSTIDENT, ' +
       NL + 'Zahlart, Storno, DatumZeit, TarifVersion, CAST(NETZ AS VARCHAR(10)) AS NETZ, ORTStart, OrtZiel, PV, LfdNrPV, '
@@ -3899,16 +3960,16 @@ begin
     //ShowMessage(sql);
 
     //exit;
-    try
+    //try
       ZConnection1.Connected := True;
       QFaks.Active := True;
       PageControl1.ActivePage := TabDaten;
-    except
-      on E: Exception do
-      begin
-       ShowMessage('Fehler:' + NL + E.Message );
-      end;
-    end;
+    //except
+    //  on E: Exception do
+    //  begin
+    //   ShowMessage('Fehler:' + NL + E.Message );
+    //  end;
+    //end;
 
 
 

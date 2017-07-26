@@ -3769,6 +3769,8 @@ begin
   (* korrekte Tarifversion berechnen: zu 36 die Differenz von Aktuellem Jahr - 2017 hinzuzählen  *)
   j := 36 + Yearof(Date) -2017;
 
+  (* nur so als Test für git push *)
+
   if  j <> TarifVersion then
   begin
      PageControl1.ActivePage := TabConfig;

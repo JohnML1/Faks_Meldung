@@ -15,7 +15,7 @@ object Form1: TForm1
   OnCreate = FormCreate
   OnKeyDown = FormKeyDown
   Position = poScreenCenter
-  SessionProperties = 'DirectoryEdit1.Directory;Edit_Max_HSTIDENT.Text;FileNameEdit_ORA.FileName;FilterCombo.Items;lbDatabase.Text;lbPassword.Text;lbUserName.Text;ListBox_nicht_gefunden.Items;ListBoxKnownLines.Items;SpinEditTarifversion.Value'
+  SessionProperties = 'DirectoryEdit1.Directory;Edit_Max_HSTIDENT.Text;FileNameEdit_ORA.FileName;FilterCombo.Items;lbDatabase.Text;lbPassword.Text;lbUserName.Text;ListBox_nicht_gefunden.Items;ListBoxKnownLines.Items;SpinEditTarifversion.Value;cbSQL.Checked'
   ShowHint = True
   LCLVersion = '1.9.0.0'
   object StatusBar1: TStatusBar
@@ -918,6 +918,15 @@ object Form1: TForm1
           Caption = ' In der Dbase-Exporttabelle steht im Feld VDTNR=999+Gerätenummer aus Spalte MDEIDINTERN, GNR=BELEGNR, GABDATUM=DatumFahrt, ZDEDATUM=Buchungsdatum, ZDEZEIT=BuchungsZeit, RID=RID'
           ParentColor = False
         end
+        object cbSQL: TCheckBox
+          Left = 224
+          Height = 20
+          Hint = '|geht nicht solange Tabelle F2Personal unvollständig!!'
+          Top = 22
+          Width = 303
+          Caption = 'mit Anrufsammeltaxi Namen ( geht aktuell nicht )'
+          TabOrder = 1
+        end
       end
       object Panel4: TPanel
         Left = 0
@@ -1319,7 +1328,7 @@ object Form1: TForm1
   object SaveDialog1: TSaveDialog
     DefaultExt = '.sql'
     Filter = 'sql-Code ( *.sql)|*.sql|DBase(*.dbf)|*.dbf|Alle Dateien (*.*)|*.*'
-    Options = [ofOverwritePrompt, ofPathMustExist, ofEnableSizing, ofViewDetail]
+    Options = [ofOverwritePrompt, ofExtensionDifferent, ofPathMustExist, ofEnableSizing, ofViewDetail]
     left = 616
     top = 106
   end

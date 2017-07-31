@@ -109,6 +109,7 @@ type
     Button2: TButton;
     BtnDelLine: TButton;
     CbincMonth: TToggleBox;
+    cbSQL: TCheckBox;
     DataSource2: TDataSource;
     DateEditBis: TDateEdit;
     DateEditVon: TDateEdit;
@@ -3914,25 +3915,11 @@ begin
 
     ExtraFilter := '/* TO_CHAR(Zeit, ''HH24:MI:SS'') BETWEEN ''23:00:00'' AND ''23:30:00'' AND */';
 
+    if not cbSQL.Checked then
+    begin
     (* sehr tückisch ist die Klammersetzung für die Logik der SQL Verarbeitung!!!!!!! *)
-    //sql :=
-    //  'SELECT RID, VID, ID_F2MANDANT, DATUM, TO_CHAR(ZEIT, ''HH24:MI:SS'') AS ZEIT, DATUMFAHRT, Buchungsdatum, '
-    //  + NL +
-    //  ' TO_CHAR(BUCHUNGSZEIT, ''HH24:MI:SS'') AS BUCHUNGSZEIT ,  JOURNAL, MDEIDINTERN, BELEGNR, Bemerkung, PNR, '
-    //  + NL + 'LINIE, FKART, anzahl, Einzelpreis, ' +
-    //  NL + '  BETRAG, GAIDENT, GATTUNGSART, PreisStDruck, PREISSTIDENT, ' +
-    //  NL + 'Zahlart, Storno, DatumZeit, TarifVersion, CAST(NETZ AS VARCHAR(10)) AS NETZ, ORTStart, OrtZiel, PV, LfdNrPV, '
-    //  + NL +
-    //  'Storniert, Sortennummer, TZSTARTIDENT, TZZIELIDENT, TZVIAIDENT, HSTSTARTIDENT,HSTSTART, HSTZIELIDENT, HSTZIEL, VERTRIEBSHSTIDENT, Vertragsnr '
-    //  + NL + 'FROM F2FSV  WHERE ' + ExtraFilter + ' ID_F2MANDANT <> ''3'' AND (PV=''RMV'') AND TarifVersion >='
-    //  +
-    //  IntToStr(TarifVersion) + ' AND ((DATUM BETWEEN ' +
-    //  NL + '''' + DateTimeToStr(DateEditVon.Date) + ''' AND ' + NL +
-    //  '''' + DateTimeToStr(DateEditBis.Date) + ''')' + NL +
-    //  ' OR ( Vertragsnr is NULL AND DATUM <= ' + NL + '''' +
-    //  DateTimeToStr(DateEditBis.Date) + ''' AND DATUM >=''01.01.' +
-    //  IntToStr(Yearof(DateEditVon.Date)) + '''))';
 
+    (* noch Ohne Tabelle F2Personal wegen Sammeltaxi, siehe unten *)
     sql :=
       'SELECT RID, VID, ID_F2MANDANT, DATUM,  ZEIT, DATUMFAHRT, Buchungsdatum, '
       + NL +
@@ -3950,7 +3937,37 @@ begin
       ' OR ( Vertragsnr is NULL AND DATUM <= ' + NL + '''' +
       DateTimeToStr(DateEditBis.Date) + ''' AND DATUM >=''01.01.' +
       IntToStr(Yearof(DateEditVon.Date)) + '''))';
+    end
+    else
+    begin
 
+    (* GEHT nicht bei dbf-Kontrolle über viel Monate
+    mit left outer join auf F2Personal für Anrufsammeltaxi *)
+    sql :=
+      'SELECT a.RID, a.VID, a.ID_F2MANDANT, a.DATUM,  a.ZEIT, a.DATUMFAHRT, a.Buchungsdatum, '
+      + NL +
+      '  a.BUCHUNGSZEIT, a.JOURNAL, a.MDEID, a.MDEIDINTERN, a.BELEGNR, a.Bemerkung, a.Bemerkung2, a.PNR,b.Name, '
+      + NL + ' a.LINIE, a.FKART, a.anzahl, a.Einzelpreis, ' +
+      NL + '  a.BETRAG, a.GAIDENT, a.GATTUNGSART, a.PreisStDruck, a.PREISSTIDENT, ' +
+      NL + ' a.Zahlart, a.Storno, a.DatumZeit, a.TarifVersion, CAST(a.NETZ AS VARCHAR(10)) AS NETZ, a.ORTStart, a.OrtZiel, a.PV, a.LfdNrPV, '
+      + NL +
+      ' a.Storniert, a.Sortennummer, a.TZSTARTIDENT, a.TZZIELIDENT, a.TZVIAIDENT, a.HSTSTARTIDENT, a.HSTSTART, a.HSTZIELIDENT, a.HSTZIEL, a.VERTRIEBSHSTIDENT, a.Vertragsnr '
+      + NL +
+      ' FROM F2FSV a ' +  NL + ' left outer join F2PERSONAL b ' + NL +
+      ' on ( a.ID_F2PERSONAL=b.ID_F2PERSONAL ) ' + NL +
+      ' WHERE ' + NL +
+      ' a.PNR=b.PNR ' + NL +
+      ' AND ' + NL +
+      ' a.ID_F2MANDANT=b.ID_F2MANDANT ' + NL +
+      ' AND ' + ExtraFilter + ' a.ID_F2MANDANT <> ''3'' AND (a.PV=''RMV'') AND a.TarifVersion >='
+      +
+      IntToStr(TarifVersion) + ' AND ((a.DATUM BETWEEN ' +
+      NL + '''' + DateTimeToStr(DateEditVon.Date) + ''' AND ' + NL +
+      '''' + DateTimeToStr(DateEditBis.Date) + ''')' + NL +
+      ' OR ( a.Vertragsnr is NULL AND a.DATUM <= ' + NL + '''' +
+      DateTimeToStr(DateEditBis.Date) + ''' AND a.DATUM >=''01.01.' +
+      IntToStr(Yearof(DateEditVon.Date)) + '''))';
+    end;(* cbSQL.Checked *)
 
 
     QFaks.SQL.Text := sql;

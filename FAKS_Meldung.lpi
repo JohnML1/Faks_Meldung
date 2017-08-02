@@ -19,7 +19,7 @@
       <AutoIncrementBuild Value="True"/>
       <MajorVersionNr Value="1"/>
       <RevisionNr Value="1"/>
-      <BuildNr Value="391"/>
+      <BuildNr Value="400"/>
       <Language Value="0407"/>
       <StringTable Comments="schönes Wetter heute!!!" CompanyName="HLB" FileDescription="FAKS-Daten in Excel-Datei/Dbase exportieren" ProductVersion="1.0.1.2"/>
     </VersionInfo>

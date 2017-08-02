@@ -921,10 +921,10 @@ object Form1: TForm1
         object cbSQL: TCheckBox
           Left = 224
           Height = 20
-          Hint = '|geht nicht solange Tabelle F2Personal unvollständig!!'
+          Hint = '|geht auch wenn Tabelle F2Personal unvollständig!!'
           Top = 22
-          Width = 303
-          Caption = 'mit Anrufsammeltaxi Namen ( geht aktuell nicht )'
+          Width = 184
+          Caption = 'mit Anrufsammeltaxi Namen'
           TabOrder = 1
         end
       end
@@ -1260,6 +1260,7 @@ object Form1: TForm1
       end
       object UpdateElgebaLinienNr: TMenuItem
         Caption = 'Elgega LinienNr aktualisieren'
+        Enabled = False
         Hint = '|LinienNr in Elgeba Dbase Datei aktualisieren'
         OnClick = UpdateElgebaLinienNrClick
       end

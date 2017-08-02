@@ -2609,7 +2609,7 @@ begin
     end;
 
     gesucht := InputBox(
-      'Welche exakte Zeichenfolge soll ab aktueller Position gesucht werden in Spalte ''' +
+      'Welche Zeichenfolge soll ab aktueller(!) Position gesucht werden in Spalte ''' +
       DBGridFaks.SelectedField.FieldName +
       '''?', 'Suchbegriff ist (F3=Suche fortsetzen!):', gesucht);
 
@@ -2643,7 +2643,8 @@ begin
       end
       else
       begin
-        if not (DBGridFaks.SelectedField.AsString = gesucht) then
+            (* vergleich caseinsensitive *)
+        if not AnsiContainsText(DBGridFaks.SelectedField.AsString, gesucht) then
           QFaks.Next
         else
         begin
@@ -3941,7 +3942,7 @@ begin
     else
     begin
 
-    (* GEHT nicht bei dbf-Kontrolle über viel Monate
+    (* GEHT  jetzt auch bei dbf-Kontrolle über viel Monate
     mit left outer join auf F2Personal für Anrufsammeltaxi *)
     sql :=
       'SELECT a.RID, a.VID, a.ID_F2MANDANT, a.DATUM,  a.ZEIT, a.DATUMFAHRT, a.Buchungsdatum, '
@@ -3954,12 +3955,12 @@ begin
       ' a.Storniert, a.Sortennummer, a.TZSTARTIDENT, a.TZZIELIDENT, a.TZVIAIDENT, a.HSTSTARTIDENT, a.HSTSTART, a.HSTZIELIDENT, a.HSTZIEL, a.VERTRIEBSHSTIDENT, a.Vertragsnr '
       + NL +
       ' FROM F2FSV a ' +  NL + ' left outer join F2PERSONAL b ' + NL +
-      ' on ( a.ID_F2PERSONAL=b.ID_F2PERSONAL ) ' + NL +
-      ' WHERE ' + NL +
-      ' a.PNR=b.PNR ' + NL +
+      ' on ( a.ID_F2PERSONAL=b.ID_F2PERSONAL  ' + NL +
       ' AND ' + NL +
-      ' a.ID_F2MANDANT=b.ID_F2MANDANT ' + NL +
-      ' AND ' + ExtraFilter + ' a.ID_F2MANDANT <> ''3'' AND (a.PV=''RMV'') AND a.TarifVersion >='
+      ' a.PNR=b.PNR  ' + NL +
+      ' AND ' + NL +
+      ' a.ID_F2MANDANT=b.ID_F2MANDANT ) ' + NL +
+      ' WHERE ' + ExtraFilter + ' a.ID_F2MANDANT <> ''3'' AND (a.PV=''RMV'') AND a.TarifVersion >='
       +
       IntToStr(TarifVersion) + ' AND ((a.DATUM BETWEEN ' +
       NL + '''' + DateTimeToStr(DateEditVon.Date) + ''' AND ' + NL +

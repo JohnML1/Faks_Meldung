@@ -1148,6 +1148,7 @@ object Form1: TForm1
     top = 48
   end
   object PopupGrid: TPopupMenu
+    OnPopup = PopupGridPopup
     OnClose = PopupGridClose
     left = 285
     top = 106
@@ -2342,10 +2343,10 @@ object Form1: TForm1
   object ZConnection1: TZConnection
     ControlsCodePage = cCP_UTF8
     AutoEncodeStrings = False
-    ClientCodepage = 'UTF8'
+    ClientCodepage = 'WE8ISO8859P15'
     Properties.Strings = (
       'AutoEncodeStrings=ON'
-      'codepage=UTF8'
+      'codepage=WE8ISO8859P15'
       'controls_cp=CP_UTF8'
     )
     SQLHourGlass = True

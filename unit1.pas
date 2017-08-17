@@ -319,6 +319,7 @@ type
     procedure OpenLogFileClick(Sender: TObject);
     procedure Pm_SearchClick(Sender: TObject);
     procedure PopupGridClose(Sender: TObject);
+    procedure PopupGridPopup(Sender: TObject);
     procedure RemoveFilterClick(Sender: TObject);
     procedure RID_as_FilterClick(Sender: TObject);
     procedure SaveToFileClick(Sender: TObject);
@@ -1661,6 +1662,16 @@ begin
          if Messagedlg('Vorsicht!!!' + NL + NL +
             'Soll die VertagsNr für die eben angezeigten Datensätze zurückgesetzt werden, um sie neu in AmisData zu importieren?',mtConfirmation,[mbYes,mbNo],0)= mrYes then
             begin
+              (* Id's der nachträglichen Stornos in Datei speichern *)
+              if not FileExists(ExePath + 'AmisDataMissing.txt') then
+                AmisDataMissing.SaveToFile(ExePath + 'AmisDataMissing.txt')
+              else
+              begin
+                Titel.LoadFromFile(ExePath + 'AmisDataMissing.txt');
+                Titel.AddStrings(AmisDataMissing);
+                Titel.SaveToFile(ExePath + 'AmisDataMissing.txt')
+              end;
+
               for x := 0 to AmisDataMissing.Count -1 do
               begin
                 StatusBar1.SimpleText:='aktualisiere: ' + AmisDataMissing[x];
@@ -1677,7 +1688,8 @@ begin
 
                QFaks.Refresh;
                DBGRidFaks.SelectedField := QFaks.FieldByName('VertragsNr');
-               ShowMessage('Bei den angezeigten ''' + IntToStr(AmisDataMissing.Count) + ''' Datensätzen wurde die VertragsNr zurückgesetzt!');
+               ShowMessage('Bei den angezeigten ''' + IntToStr(AmisDataMissing.Count) + ''' Datensätzen wurde die VertragsNr zurückgesetzt!' + NL +
+               'Siehe auch ( gesamt!! ):' + ExePath + 'AmisDataMissing.txt');
             end;
         end;
       end;
@@ -2596,6 +2608,10 @@ procedure TForm1.Pm_SearchClick(Sender: TObject);
 var
   gefunden: boolean;
 begin
+
+  //Raise Exception.Create ('Division by Zero would occur');
+  //exit;
+
   if Sender <> Form1 then
   begin
 
@@ -2673,6 +2689,15 @@ end;
 procedure TForm1.PopupGridClose(Sender: TObject);
 begin
       Application.ProcessMessages;
+end;
+
+procedure TForm1.PopupGridPopup(Sender: TObject);
+begin
+  (* ob das gegen ZugriffsFehler hilft? *)
+  Application.ProcessMessages;
+  DBGridFaks.SetFocus;
+  DBGridFaks.SelectedField := QFaks.DataSetField;
+  Application.ProcessMessages;
 end;
 
 procedure TForm1.RemoveFilterClick(Sender: TObject);
@@ -2814,6 +2839,9 @@ begin
   if OpenDialog1.Execute then
   begin
     Memo1.Lines.LoadFromFile(OpenDialog1.FileName);
+     if QFaks.Filtered then
+     ShowMessage('Vorsicht, ein Datenfilter ist noch in Benutzung!!' + NL + NL +
+     QFaks.Filter);
   end;
 end;
 
@@ -2968,7 +2996,7 @@ end;
 
 procedure TForm1.ApplicationProperties1Exception(Sender: TObject; E: Exception);
 begin
-  ShowMessage('Mist ein Fehler:' + NL + NL + E.Message + NL + (Sender as TComponent).Name + NL +
+  ShowMessage('Mist ein Fehler:' + NL + NL + E.Message + NL + (* (Sender as TComponent).Name + *) NL +
     'Faks Spalte RID hat den Wert ' + RowID + NL + NL +
     'Oft hilft auch ein Neustart der Anwendung!!');
   (* Oracle LogFile anzeigen *)
@@ -3927,7 +3955,7 @@ begin
       '  BUCHUNGSZEIT, JOURNAL,MDEID, MDEIDINTERN, BELEGNR, Bemerkung, Bemerkung2, PNR, '
       + NL + 'LINIE, FKART, anzahl, Einzelpreis, ' +
       NL + '  BETRAG, GAIDENT, GATTUNGSART, PreisStDruck, PREISSTIDENT, ' +
-      NL + 'Zahlart, Storno, DatumZeit, TarifVersion, CAST(NETZ AS VARCHAR(10)) AS NETZ, ORTStart, OrtZiel, PV, LfdNrPV, '
+      NL + 'Zahlart, Storno, DatumZeit, TarifVersion, NETZ, ORTStart, OrtZiel, PV, LfdNrPV, '
       + NL +
       'Storniert, Sortennummer, TZSTARTIDENT, TZZIELIDENT, TZVIAIDENT, HSTSTARTIDENT,HSTSTART, HSTZIELIDENT, HSTZIEL, VERTRIEBSHSTIDENT, Vertragsnr '
       + NL + 'FROM F2FSV  WHERE ' + ExtraFilter + ' ID_F2MANDANT <> ''3'' AND (PV=''RMV'') AND TarifVersion >='
@@ -3950,7 +3978,7 @@ begin
       '  a.BUCHUNGSZEIT, a.JOURNAL, a.MDEID, a.MDEIDINTERN, a.BELEGNR, a.Bemerkung, a.Bemerkung2, a.PNR,b.Name, '
       + NL + ' a.LINIE, a.FKART, a.anzahl, a.Einzelpreis, ' +
       NL + '  a.BETRAG, a.GAIDENT, a.GATTUNGSART, a.PreisStDruck, a.PREISSTIDENT, ' +
-      NL + ' a.Zahlart, a.Storno, a.DatumZeit, a.TarifVersion, CAST(a.NETZ AS VARCHAR(10)) AS NETZ, a.ORTStart, a.OrtZiel, a.PV, a.LfdNrPV, '
+      NL + ' a.Zahlart, a.Storno, a.DatumZeit, a.TarifVersion, NETZ, a.ORTStart, a.OrtZiel, a.PV, a.LfdNrPV, '
       + NL +
       ' a.Storniert, a.Sortennummer, a.TZSTARTIDENT, a.TZZIELIDENT, a.TZVIAIDENT, a.HSTSTARTIDENT, a.HSTSTART, a.HSTZIELIDENT, a.HSTZIEL, a.VERTRIEBSHSTIDENT, a.Vertragsnr '
       + NL +
@@ -3980,16 +4008,16 @@ begin
     //ShowMessage(sql);
 
     //exit;
-    //try
+    try
       ZConnection1.Connected := True;
       QFaks.Active := True;
       PageControl1.ActivePage := TabDaten;
-    //except
-    //  on E: Exception do
-    //  begin
-    //   ShowMessage('Fehler:' + NL + E.Message );
-    //  end;
-    //end;
+    except
+      on E: Exception do
+      begin
+       ShowMessage('Fehler:' + NL + E.Message );
+      end;
+    end;
 
 
 

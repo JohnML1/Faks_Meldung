@@ -2298,22 +2298,30 @@ end;
 
 procedure TForm1.MnAnrufsammeltaxisClick(Sender: TObject);
 begin
-  if QFaks.Filtered then  QFaks.Filtered := False;
 
-  (* Linien Anrufsammeltaxi als Filter setzen *)
-  //FilterCombo.Text:='(Linie=''404'' AND ID_F2MANDANT=''5'') OR (Linie=''818'' AND ID_F2MANDANT=''5'') OR (Linie=''835'' AND ID_F2MANDANT=''5'') OR (Linie=''836'' AND ID_F2MANDANT=''5'') OR (Linie=''837'' AND ID_F2MANDANT=''5'') OR (Linie=''46'' AND ID_F2MANDANT=''5'') OR (Linie=''66'' AND ID_F2MANDANT=''5'') OR (Linie=''67'' AND ID_F2MANDANT=''5'')';
-  FilterCombo.Text:='Bemerkung2=''AST'' OR MDEID=''Notfahrkarten''';
+  (* geht nur mit extra SQL laut cbSQL.Checked *)
+  if cbSQL.Checked then
+  begin
 
-  QFaks.Filter := FilterCombo.Text;
+    if QFaks.Filtered then  QFaks.Filtered := False;
 
-  QFaks.Filtered := True;
+    (* Linien Anrufsammeltaxi als Filter setzen *)
+    FilterCombo.Text:='Bemerkung2=''AST'' OR MDEID=''Notfahrkarten''';
 
-  AddFilterHistory(FilterCombo.Text);
+    QFaks.Filter := FilterCombo.Text;
+
+    QFaks.Filtered := True;
+
+    AddFilterHistory(FilterCombo.Text);
 
 
-  ShowFilterInfo(True);
+    ShowFilterInfo(True);
 
-  ShowRecordCount(Sender);
+    ShowRecordCount(Sender);
+
+  end
+  else
+     ShowMessage('Bitte erst die Option auf der Seite Einstellungen ''mit Anrufsammeltaxi Namen'' aktivieren und neu starten!');
 
 
 
@@ -2862,8 +2870,8 @@ var
   x: integer;
 begin
   Memo1.Lines.Assign(QFaks.SQL);
-  DBGridFaks.AutoSizeColumns;
-
+  //DBGridFaks.AutoSizeColumns;
+  DBGridFaks.AutoAdjustColumns;
 
   (* dafür sorgen, dass nicht 1,0999999999 statt 1,10 EURO angezeigt werden *)
   for x := 0 to QFaks.FieldCount - 1 do

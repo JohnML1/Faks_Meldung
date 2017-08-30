@@ -2306,7 +2306,7 @@ begin
     if QFaks.Filtered then  QFaks.Filtered := False;
 
     (* Linien Anrufsammeltaxi als Filter setzen *)
-    FilterCombo.Text:='Bemerkung2=''AST'' OR MDEID=''Notfahrkarten''';
+    FilterCombo.Text:='Bemerkung2 LIKE ''AST*'' OR MDEID LIKE ''*Notfahr*''';
 
     QFaks.Filter := FilterCombo.Text;
 

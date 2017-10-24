@@ -176,6 +176,7 @@ object Form1: TForm1
           ItemHeight = 16
           OnKeyDown = FilterComboKeyDown
           ParentFont = False
+          PopupMenu = PopupFilterCombo
           TabOrder = 7
         end
         object lbRecordCount: TLabel
@@ -202,11 +203,12 @@ object Form1: TForm1
         Color = clWindow
         Columns = <>
         DataSource = DataSource2
-        Options = [dgTitles, dgIndicator, dgColumnResize, dgColumnMove, dgColLines, dgRowLines, dgTabs, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit, dgMultiselect, dgHeaderPushedLook, dgDisableDelete, dgDisableInsert, dgThumbTracking]
+        Options = [dgTitles, dgIndicator, dgColumnResize, dgColumnMove, dgColLines, dgRowLines, dgTabs, dgAlwaysShowSelection, dgConfirmDelete, dgCancelOnExit, dgMultiselect, dgHeaderHotTracking, dgHeaderPushedLook, dgDisableDelete, dgDisableInsert, dgThumbTracking]
         PopupMenu = PopupGrid
         TabOrder = 1
         TitleFont.CharSet = OEM_CHARSET
         TitleImageList = ImageList1
+        OnPrepareCanvas = DBGridFaksPrepareCanvas
         OnTitleClick = DBGridFaksTitleClick
       end
     end
@@ -1277,7 +1279,7 @@ object Form1: TForm1
       end
       object MnSetAST_TarifVersion: TMenuItem
         Caption = 'Setze bei AST die Tarifversion'
-        Hint = '|setze bei Anrufsammeltaxi die aktuelle Traifversion'
+        Hint = '|setze bei Anrufsammeltaxi die aktuelle Tarifversion laut Jahr im Zeitraumauswahl'
         OnClick = MnSetAST_TarifVersionClick
       end
     end
@@ -1329,13 +1331,13 @@ object Form1: TForm1
   end
   object SaveDialog1: TSaveDialog
     DefaultExt = '.sql'
-    Filter = 'sql-Code ( *.sql)|*.sql|DBase(*.dbf)|*.dbf|Alle Dateien (*.*)|*.*'
+    Filter = 'sql-Code ( *.sql)|*.sql|DBase(*.dbf)|*.dbf|Filter (*.flt)|*.flt|Alle Dateien (*.*)|*.*'
     Options = [ofOverwritePrompt, ofExtensionDifferent, ofPathMustExist, ofEnableSizing, ofViewDetail]
     left = 616
     top = 106
   end
   object OpenDialog1: TOpenDialog
-    Filter = 'SQL (*.sql)|*.sql|DBase(*.dbf)|*.dbf|Alle Dateien (*.*)|*.*'
+    Filter = 'SQL (*.sql)|*.sql|DBase(*.dbf)|*.dbf|Filter ( *.flt)|*.flt|Alle Dateien (*.*)|*.*'
     left = 704
     top = 106
   end
@@ -2401,12 +2403,6 @@ object Form1: TForm1
     left = 469
     top = 48
   end
-  object UniqueInstance1: TUniqueInstance
-    Enabled = True
-    OnOtherInstance = UniqueInstance1OtherInstance
-    left = 896
-    top = 50
-  end
   object ImageList1: TImageList
     left = 856
     top = 112
@@ -2556,11 +2552,36 @@ object Form1: TForm1
       end>
   end
   object PopupGridReplace: TPopupMenu
-    left = 384
-    top = 497
+    left = 392
+    top = 472
     object MnSearch: TMenuItem
       Caption = '&suchen'
       OnClick = MnSearchClick
+    end
+  end
+  object UniqueInstance1: TUniqueInstance
+    Enabled = True
+    Identifier = 'FAKS_Meldung'
+    OnOtherInstance = UniqueInstance1OtherInstance
+    left = 928
+    top = 56
+  end
+  object PopupFilterCombo: TPopupMenu
+    left = 1040
+    top = 472
+    object mnSaveFilter: TMenuItem
+      Caption = 'Filter in Datei speichern'
+      Hint = '|speichert die Liste der Filter in eine Datei'
+      OnClick = mnSaveFilterClick
+    end
+    object mnLoadFilter: TMenuItem
+      Caption = 'Filter aus Datei laden'
+      Hint = '|Filter aus Datei laden'
+      OnClick = mnLoadFilterClick
+    end
+    object mnDelFilter: TMenuItem
+      Caption = 'Filter entfernen'
+      OnClick = mnDelFilterClick
     end
   end
 end

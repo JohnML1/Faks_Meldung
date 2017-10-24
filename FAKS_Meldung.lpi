@@ -19,7 +19,7 @@
       <AutoIncrementBuild Value="True"/>
       <MajorVersionNr Value="1"/>
       <RevisionNr Value="1"/>
-      <BuildNr Value="425"/>
+      <BuildNr Value="528"/>
       <Language Value="0407"/>
       <StringTable Comments="schönes Wetter heute!!!" CompanyName="HLB" FileDescription="FAKS-Daten in Excel-Datei/Dbase exportieren" ProductVersion="1.0.1.2"/>
     </VersionInfo>
@@ -187,17 +187,4 @@
       </Options>
     </Linking>
   </CompilerOptions>
-  <Debugging>
-    <Exceptions Count="3">
-      <Item1>
-        <Name Value="EAbort"/>
-      </Item1>
-      <Item2>
-        <Name Value="ECodetoolError"/>
-      </Item2>
-      <Item3>
-        <Name Value="EFOpenError"/>
-      </Item3>
-    </Exceptions>
-  </Debugging>
 </CONFIG>

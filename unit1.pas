@@ -203,6 +203,9 @@ type
     DeleteSelected: TMenuItem;
     MenuAddLinie: TMenuItem;
     LookupStornos: TMenuItem;
+    mnDelFilter: TMenuItem;
+    mnLoadFilter: TMenuItem;
+    mnSaveFilter: TMenuItem;
     MnSetAST_TarifVersion: TMenuItem;
     MnShowRecordCount: TMenuItem;
     MnManuelleBuchungen: TMenuItem;
@@ -215,8 +218,10 @@ type
     MnSucheLinien: TMenuItem;
     MnSearch: TMenuItem;
     PopupGridReplace: TPopupMenu;
+    PopupFilterCombo: TPopupMenu;
     Shape1: TShape;
     SpinEditTarifversion: TSpinEdit;
+    UniqueInstance1: TUniqueInstance;
     UpdateElgebaLinienNr: TMenuItem;
     MnSumColumn: TMenuItem;
     MnMarkExported: TMenuItem;
@@ -253,7 +258,6 @@ type
     PopupGrid: TPopupMenu;
     StatusBar1: TStatusBar;
     TabDaten: TTabSheet;
-    UniqueInstance1: TUniqueInstance;
     UpDown1: TUpDown;
     ZConnection1: TZConnection;
     QFaks: TZReadOnlyQuery;
@@ -274,6 +278,8 @@ type
       var AcceptDate: boolean);
     procedure DBase_exportClick(Sender: TObject);
     procedure DBGridFaksDblClick(Sender: TObject);
+    procedure DBGridFaksPrepareCanvas(sender: TObject; DataCol: Integer;
+      Column: TColumn; AState: TGridDrawState);
     procedure DBGridFaksTitleClick(Column: TColumn);
     procedure DeleteSelectedClick(Sender: TObject);
     procedure DirectoryEdit1ButtonClick(Sender: TObject);
@@ -306,11 +312,14 @@ type
     procedure MenuItem2Click(Sender: TObject);
     procedure MnAnrufsammeltaxisClick(Sender: TObject);
     procedure MNCheckLinieJeMandantClick(Sender: TObject);
+    procedure mnDelFilterClick(Sender: TObject);
     procedure MnFieldlistClick(Sender: TObject);
     procedure MnFixColumnClick(Sender: TObject);
     procedure MnGroupValuesClick(Sender: TObject);
+    procedure mnLoadFilterClick(Sender: TObject);
     procedure MnManuelleBuchungenClick(Sender: TObject);
     procedure MnMarkExportedClick(Sender: TObject);
+    procedure mnSaveFilterClick(Sender: TObject);
     procedure MnSearchClick(Sender: TObject);
     procedure MnSetAST_TarifVersionClick(Sender: TObject);
     procedure MnShowRecordCountClick(Sender: TObject);
@@ -1058,7 +1067,17 @@ begin
         'Wo stehen die bereits in Amisdata Schnittstelle BLE importierten Faks-Daten?';
       (* den Pfad der Dateien ermitteln *)
       if MyDirSelect.Execute then
+      begin
+        if DirectoryExists( MyDirSelect.FileName ) then
         SavePath := IncludeTrailingBackslash(MyDirSelect.FileName)
+        else
+        begin
+           ShowMessage('Das Verzeichnis ''' + MyDirSelect.FileName + ''' existiert nicht!' + NL +
+           'Bitte wiederholen Sie die letzte Aktion, damit der Pfad erneut abgefragt wird!');
+           Nei;
+           exit;
+        end
+      end
       else
         exit;
 
@@ -1247,6 +1266,10 @@ begin
         QFaks.Filter := '(' + Filter + ') And Vertragsnr is null';
         QFaks.Filtered := True;
         ShowFilterInfo(True);
+
+        (* zur Liste der Filter hinzufügen *)
+        AddFilterHistory(QFaks.Filter);
+
 
         Titel.Clear;
         Betrag.Clear;
@@ -1466,6 +1489,9 @@ begin
           QFaks.Filter := '(' + Filter + ') And Vertragsnr=''1''';
           QFaks.Filtered := True;
           ShowFilterInfo(True);
+          (* zur Liste der Filter hinzufügen *)
+          AddFilterHistory(QFaks.Filter);
+
         end;
 
         (* nachsehen, welche Datensätze aus Faks gelöscht wurden *)
@@ -1652,6 +1678,9 @@ begin
          QFaks.Filter:=Filter;
          QFaks.Filtered:=true;
          ShowFilterInfo(True);
+         (* zur Liste der Filter hinzufügen *)
+         AddFilterHistory(QFaks.Filter);
+
 
 
 
@@ -2332,6 +2361,11 @@ begin
   LinieJeMandant(Sender);
 end;
 
+procedure TForm1.mnDelFilterClick(Sender: TObject);
+begin
+  RemoveFilterClick(Sender);
+end;
+
 procedure TForm1.MnFieldlistClick(Sender: TObject);
 begin
   (* Feldliste anzeigen: SQL Code aus Faks_Meldung.log *)
@@ -2408,6 +2442,40 @@ begin
 
 end;
 
+procedure TForm1.mnLoadFilterClick(Sender: TObject);
+var OldFilters : TStringList;
+    x : integer;
+begin
+
+  try
+   (* vorhandene Filter sichern *)
+   OldFilters := TStringList.Create;
+
+   OpenDialog1.InitialDir:=ExePath;
+   OpenDialog1.FilterIndex:=3;
+
+   if OpenDialog1.Execute then
+   begin
+     OldFilters.Assign(FilterCombo.Items);
+     FilterCombo.Items.LoadFromFile(OpenDialog1.FileName);
+
+     (* Filter alt und geladen abgleichen, fehlende im geladenen nachtragen *)
+     for x := 0 to OldFilters.Count -1 do
+     begin
+       if  FilterCombo.Items.IndexOf(OldFilters[x]) = -1 then
+           FilterCombo.Items.Add(OldFilters[x]);
+
+     end;
+
+   end;
+
+   finally
+     FreeAndNil(OldFilters);
+
+   end;
+
+end;
+
 procedure TForm1.MnManuelleBuchungenClick(Sender: TObject);
 begin
   QFaks.Filter:='LENGTH(BELEGNR)>''6''';
@@ -2470,6 +2538,18 @@ begin
 
     MarkExported(FName, mark);
   end;
+end;
+
+procedure TForm1.mnSaveFilterClick(Sender: TObject);
+begin
+   SaveDialog1.InitialDir:=ExePath;
+   SaveDialog1.FilterIndex:=3;
+
+   SaveDialog1.FileName:='Faks_Meldung_Filter_.flt';
+
+   if SaveDialog1.Execute then
+     FilterCombo.Items.SaveToFile(SaveDialog1.FileName);
+
 end;
 
 procedure TForm1.MnSearchClick(Sender: TObject);
@@ -2856,6 +2936,7 @@ end;
 procedure TForm1.UniqueInstance1OtherInstance(Sender: TObject;
   ParamCount: integer; Parameters: array of string);
 begin
+  ShowMessage('Duplikat! ' + NL + NL + Application.ExeName);
   if WindowState = wsMinimized then
     Application.Restore
   else
@@ -2899,6 +2980,9 @@ begin
    'Bitte nachholen');
 
    ShowRecordCount(self);
+
+   PageControl1.ActivePage := TabDaten;
+   DBGridFaks.SetFocus;
 end;
 
 procedure TForm1.ApplicationProperties1Hint(Sender: TObject);
@@ -3277,9 +3361,9 @@ begin
 
           (* Keine Ahnung ob das besser ist *)
           //if ((QFaks.FieldByName('HSTSTARTIDENT').isNull) and (QFaks.FieldByName('VertriebsHSTIdent').AsInteger > 0)) then
-          if (QFaks.FieldByName('HSTSTARTIDENT').isNull) then
-            Dbf1.FieldByName('HALTNR').AsString := QFaks.FieldByName('VertriebsHSTIdent').AsString
-          else
+          //if (QFaks.FieldByName('HSTSTARTIDENT').isNull) then
+          //  Dbf1.FieldByName('HALTNR').AsString := QFaks.FieldByName('VertriebsHSTIdent').AsString
+          //else
             Dbf1.FieldByName('HALTNR').AsString := QFaks.FieldByName('HSTSTARTIDENT').AsString;
 
           (* sicherstellen, dass die HALTNR maximal 5 Zeichen hat *)
@@ -3525,6 +3609,19 @@ begin
     'Betrag').AsFloat));
 end;
 
+procedure TForm1.DBGridFaksPrepareCanvas(sender: TObject; DataCol: Integer;
+  Column: TColumn; AState: TGridDrawState);
+begin
+    (* siehe:  http://forum.lazarus.freepascal.org/index.php/topic,38357.msg260169.html#msg260169
+      [gdSelected, gdFocused] * AState -> gesucht ist die Schnittmenge ausgedrückt durch *
+    *)
+    if (([gdSelected, gdFocused] * AState <> []) and (DBGridFaks.SelectedColumn = Column)) then
+  begin
+    DBGridFaks.Canvas.Brush.Color := clRed;
+    DBGridFaks.Canvas.Font.Color := clWhite;
+  end;
+end;
+
 (* Anzeige von up und down Arrows laut:
 http://wiki.freepascal.org/Grids_Reference_Page#Sorting_columns_or_rows_in_DBGrid_with_sort_arrows_in_column_header *)
 procedure TForm1.DBGridFaksTitleClick(Column: TColumn);
@@ -3562,7 +3659,7 @@ begin
     end;
 
     QFaks.First;
-    //QFaks.GotoBookmark(BM);
+   // QFaks.GotoBookmark(BM);
 
   finally
     QFaks.FreeBookmark(BM);
@@ -3864,6 +3961,8 @@ begin
   screen.cursor := crDefault;
 end;
 
+
+
 function TForm1.Verbinden: boolean;
 var
   d, m, y, d1, m1, y1: word;
@@ -4082,11 +4181,11 @@ begin
 
     Screen.ActiveControl.Invalidate;
 
-
-    (* Tabelle nach Spalte RID aufsteigend sortieren *)
-    QFaks.SortedFields := 'RID';
-    (* stAscending ist defibniert in ZAbstractRODataset *)
-    QFaks.SortType := stAscending;
+     (* keine Ahnung wozu das mal nützlich sein sollte *)
+    //(* Tabelle nach Spalte RID aufsteigend sortieren *)
+    //QFaks.SortedFields := 'RID';
+    //(* stAscending ist defibniert in ZAbstractRODataset *)
+    //QFaks.SortType := stAscending;
 
     BM := QFaks.GetBookmark;
     QFaks.DisableControls;

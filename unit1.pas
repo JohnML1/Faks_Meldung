@@ -3383,7 +3383,7 @@ begin
     (* Filter entfernen -> Daten neu einlesen *)
     RemoveFilterClick(Sender);
     StatusBar1.SimpleText :=
-      'Filter wurde entfernt, bitte den SQL-Code ggf. kontrollieren!!';
+      'Filter wurde entfernt ...';
   finally
     Nei;
   end;

@@ -103,9 +103,12 @@ type
   TForm1 = class(TForm)
     ApplicationProperties1: TApplicationProperties;
     AsyncProcess1: TAsyncProcess;
+    BtnAddLine1: TButton;
     BtnConnect: TButton;
     BtnAddLine: TButton;
+    BtnDelLine1: TButton;
     BtnSearch: TButton;
+    BtnSearch1: TButton;
     Button2: TButton;
     BtnDelLine: TButton;
     CbincMonth: TToggleBox;
@@ -177,8 +180,10 @@ type
     DirectoryEdit1: TDirectoryEdit;
     EventLog1: TEventLog;
     FilterCombo: TComboBox;
+    GridReplaceGattungsart: TStringGrid;
     GroupBox1: TGroupBox;
     GroupBox2: TGroupBox;
+    GroupBox3: TGroupBox;
     ImageList1: TImageList;
     IniPropStorage1: TIniPropStorage;
     Label1: TLabel;
@@ -203,6 +208,7 @@ type
     DeleteSelected: TMenuItem;
     MenuAddLinie: TMenuItem;
     LookupStornos: TMenuItem;
+    MnOraFixError: TMenuItem;
     mnDelFilter: TMenuItem;
     mnLoadFilter: TMenuItem;
     mnSaveFilter: TMenuItem;
@@ -217,6 +223,7 @@ type
     MnFieldlist: TMenuItem;
     MnSucheLinien: TMenuItem;
     MnSearch: TMenuItem;
+    Panel9: TPanel;
     PopupGridReplace: TPopupMenu;
     PopupFilterCombo: TPopupMenu;
     Shape1: TShape;
@@ -268,7 +275,9 @@ type
     procedure ApplicationProperties1Exception(Sender: TObject; E: Exception);
     procedure ApplicationProperties1Hint(Sender: TObject);
     procedure AuswahlFilterClick(Sender: TObject);
+    procedure BtnAddLine1Click(Sender: TObject);
     procedure BtnAddLineClick(Sender: TObject);
+    procedure BtnDelLine1Click(Sender: TObject);
     procedure BtnDelLineClick(Sender: TObject);
     procedure BtnSearchClick(Sender: TObject);
     procedure Button2Click(Sender: TObject);
@@ -319,6 +328,7 @@ type
     procedure mnLoadFilterClick(Sender: TObject);
     procedure MnManuelleBuchungenClick(Sender: TObject);
     procedure MnMarkExportedClick(Sender: TObject);
+    procedure MnOraFixErrorClick(Sender: TObject);
     procedure mnSaveFilterClick(Sender: TObject);
     procedure MnSearchClick(Sender: TObject);
     procedure MnSetAST_TarifVersionClick(Sender: TObject);
@@ -386,6 +396,9 @@ type
     function AddFilterHistory(item : String):boolean;
 
     procedure ShowRecordCount(Sender: TObject);
+
+    (* Versuch den Fehler ungültige Zahl ORA-01722 zu fixen *)
+    function AnalyzeTable(Table: string): boolean;
 
 
 
@@ -789,6 +802,26 @@ begin
 
 end;
 
+function TForm1.AnalyzeTable(Table: string): boolean;
+var OldSQL : string;
+begin
+  try
+   (* Fehler ORA-01722 fixen *)
+   Jei;
+   (* alte SQL sichern *)
+   OldSQL := ZUpDateRid.SQL.Text;
+   ZUpDateRid.SQL.TEXT := 'analyze table ' + Table + ' VALIDATE STRUCTURE';
+   ZUpDateRid.ExecSQL;
+   EventLog1.Log('Fehler ORA-01722 fixen mit: ' + ZUpDateRid.SQL.TEXT);
+  finally
+    Nei;
+    (* SQL rücksichern *)
+    ZUpDateRid.SQL.Text := OldSQL;
+    QFaks.Refresh;
+
+  end
+end;
+
 
 // testet, ob eine Tabelle schon in der DB vorhanden ist
 // benutzt dazu Metadata
@@ -885,7 +918,13 @@ begin
     begin
       v := Trim(tab.FieldByName('RID').AsString);
       ZUpDateRid.ParamByName('RID').AsString := v;
-      ZUpDateRid.ParamByName('Vertragsnr').AsString := mark;
+
+      (* NULL korrekt eintragen? *)
+      if CompareText(mark,'NULL') <> 0 then
+        ZUpDateRid.ParamByName('Vertragsnr').AsString := mark
+      else
+        ZUpDateRid.ParamByName('Vertragsnr').Clear;
+
       ZUpDateRid.ExecSQL;
       //if not QFaks.Locate('RID',v,[]) then ErrList.Add(v);
       tab.Next;
@@ -1005,6 +1044,7 @@ begin
         begin
           Nei;
           ShowMessage('Bearbeitung durch ESC-Taste abgebrochen!');
+          StoppIt:= false;
           exit;
         end;
 
@@ -1138,6 +1178,7 @@ begin
         begin
           Nei;
           ShowMessage('Bearbeitung durch ESC-Taste abgebrochen!');
+          StoppIt:= false;
           exit;
         end;
 
@@ -1177,6 +1218,7 @@ begin
         begin
           Nei;
           ShowMessage('Bearbeitung durch ESC-Taste abgebrochen!');
+          StoppIt:= false;
           exit;
         end;
 
@@ -1243,6 +1285,7 @@ begin
             begin
               Nei;
               ShowMessage('Bearbeitung durch ESC-Taste abgebrochen!');
+              StoppIt:= false;
               exit;
             end;
 
@@ -1374,6 +1417,8 @@ begin
           begin
             Nei;
             ShowMessage('Bearbeitung durch ESC-Taste abgebrochen!');
+            StoppIt:= false;
+
             exit;
           end;
 
@@ -1460,6 +1505,7 @@ begin
             begin
               Nei;
               ShowMessage('Bearbeitung durch ESC-Taste abgebrochen!');
+              StoppIt:= false;
               exit;
             end;
             QFaks.Next;
@@ -2029,6 +2075,8 @@ begin
   EventLog1.LogType := ltFile;
   EventLog1.Active := True;
 
+
+
   (* Database=hlbst02:1521/VASP macht das Gezerre mit tnsnames.ora überflüssig
 
     gibts die tnsnames.ora, sonst Oracle Fehlermeldung *)
@@ -2046,6 +2094,13 @@ begin
   (* LinienNummern, die beim DBF-Export für AmisData ersetzt werden sollen *)
   if FileExists(ChangeFileExt(Application.ExeName,'_ErsetzungLinienNummern.csv')) then
   GridReplaceLineNumber.LoadFromCSVFile(ChangeFileExt(Application.ExeName,'_ErsetzungLinienNummern.csv'),';');
+
+
+  (* Gattungsarten, die beim DBF-Export für AmisData ersetzt werden sollen *)
+  if FileExists(ChangeFileExt(Application.ExeName,'_ErsetzungGattungsarten.csv')) then
+  GridReplaceGattungsart.LoadFromCSVFile(ChangeFileExt(Application.ExeName,'_ErsetzungGattungsarten.csv'),';');
+
+  PageControl1.ActivePage := TabDaten;
 
 end;
 
@@ -2326,7 +2381,17 @@ begin
 end;
 
 procedure TForm1.MnAnrufsammeltaxisClick(Sender: TObject);
+var  MissingGAIDENT : TStringlist;
+    x : Integer;
 begin
+  try
+   (* Welche unbekannten Gattungsarten gibt es, d.h sind in
+      GridReplaceGattungsart noch nicht erfasst.
+
+   *)
+   MissingGAIDENT := TStringlist.Create;
+   MissingGAIDENT.Sorted:=true;
+   MissingGAIDENT.Duplicates:=dupIgnore;
 
   (* geht nur mit extra SQL laut cbSQL.Checked *)
   if cbSQL.Checked then
@@ -2348,11 +2413,38 @@ begin
 
     ShowRecordCount(Sender);
 
+    Jei;
+
+    QFaks.First;
+
+    While not QFaks.EOF do
+    begin
+      if GridReplaceGattungsart.Cols[1].IndexOf(QFaks.FieldByName('GAIDENT').AsString) = -1 then
+      MissingGAIDENT.Add(QFaks.FieldByName('GAIDENT').AsString);
+      QFaks.next;
+    end;
+
+    if MissingGAIDENT.Count > 0 then
+    begin
+     Nei;
+     PageControl1.ActivePage := TabConfig;
+     GridReplaceGattungsart.SetFocus;
+     Application.ProcessMessages;
+
+     ShowMessage('Diese Gattungsarten fehlen in der Liste auf der Seite Einstellungen:' + NL +
+     MissingGAIDENT.Text + NL + 'Strg + c kopiert diese Werte' + NL +
+     'Setzen Sie später in den Daten einen Filter auf diese GAIDENT um die Sortennummern zu sehen.');
+
+    end;
+
   end
   else
      ShowMessage('Bitte erst die Option auf der Seite Einstellungen ''mit Anrufsammeltaxi Namen'' aktivieren und neu starten!');
 
-
+ finally
+   Nei;
+   FreeAndNil(MissingGAIDENT);
+ end;
 
 end;
 
@@ -2501,14 +2593,14 @@ begin
   FName := SavePath;
 
   if InputQuery('Bereits in AmisData importierte Dbf-Datei',
-    'Pfad und Dateiname der dbf aus dem Ordner: ' + FName, FName) = False then
+    'Pfad und(!) Dateiname der dbf aus dem Ordner: ' + FName, FName) = False then
     exit
   else
   begin
     StatusBar1.SimpleText := 'bearbeite die Exportmarkierung für: ''' + FName + '''';
     Application.ProcessMessages;
     if InputQuery('Was soll in Spalte VertragsNr eingetragen werden?',
-      '1 = wurde exportiert ''''= noch nicht exportiert', mark) = False then
+      '1 = wurde exportiert NULL = noch nicht exportiert', mark) = False then
       exit;
 
     //ShowMessage(mark);
@@ -2540,6 +2632,16 @@ begin
   end;
 end;
 
+procedure TForm1.MnOraFixErrorClick(Sender: TObject);
+begin
+  try
+   jei;
+    AnalyzeTable('f2fsv');
+   finally
+    Nei;
+   end;
+end;
+
 procedure TForm1.mnSaveFilterClick(Sender: TObject);
 begin
    SaveDialog1.InitialDir:=ExePath;
@@ -2556,40 +2658,52 @@ procedure TForm1.MnSearchClick(Sender: TObject);
 var Col, x, y : Integer;
     found : boolean;
 begin
-  (* Im StringGrid einen Wert suchen *)
-  GridReplaceLineNumber.SetFocus;
-  col := GridReplaceLineNumber.col;
-  y :=   GridReplaceLineNumber.Row;
+  (* richtiges TStringGrid aktivieren *)
+  if Sender = BtnSearch1 then
+  begin
+    GridReplaceGattungsart.SetFocus;
+    Application.ProcessMessages;
+  end
+  else if Sender = BtnSearch then
+  begin
+    GridReplaceLineNumber.SetFocus;
+    Application.ProcessMessages;
+  end;
 
-  gesucht := GridReplaceLineNumber.Cells[col,GridReplaceLineNumber.Row];
+  (* Im StringGrid einen Wert suchen *)
+  (Screen.ActiveControl as TStringGrid).SetFocus;
+  col := (Screen.ActiveControl as TStringGrid).col;
+  y :=   (Screen.ActiveControl as TStringGrid).Row;
+
+  gesucht := (Screen.ActiveControl as TStringGrid).Cells[col,(Screen.ActiveControl as TStringGrid).Row];
 
   gesucht := InputBox(
     'Welche Zeichenfolge soll in Spalte ''' +
-    GridReplaceLineNumber.Cells[col,0] +
+    (Screen.ActiveControl as TStringGrid).Cells[col,0] +
     ''' gesucht werden?', 'Suchbegriff exakte Schreibweise:', gesucht);
 
 
   found := false;
 
-  for x := 1 to GridReplaceLineNumber.RowCount -1 do
+  for x := 1 to (Screen.ActiveControl as TStringGrid).RowCount -1 do
   begin
-     if GridReplaceLineNumber.Cells[col,x] = gesucht then
+     if (Screen.ActiveControl as TStringGrid).Cells[col,x] = gesucht then
      begin
        found := true;
-       GridReplaceLineNumber.Row:=x;
-       GridReplaceLineNumber.Col:=Col;
-       GridReplaceLineNumber.SetFocus;
+       (Screen.ActiveControl as TStringGrid).Row:=x;
+       (Screen.ActiveControl as TStringGrid).Col:=Col;
+       (Screen.ActiveControl as TStringGrid).SetFocus;
        break;
      end;
   end;
 
   if not found then
   begin
-    GridReplaceLineNumber.Row:=y;
-    GridReplaceLineNumber.Col:=Col;
-    GridReplaceLineNumber.SetFocus;
+    (Screen.ActiveControl as TStringGrid).Row:=y;
+    (Screen.ActiveControl as TStringGrid).Col:=Col;
+    (Screen.ActiveControl as TStringGrid).SetFocus;
 
-     ShowMessage(gesucht + ' konnte in Spalte ''' + GridReplaceLineNumber.Cells[col,0] + ''' nicht gefunden weden.' + NL +
+     ShowMessage(gesucht + ' konnte in Spalte ''' + (Screen.ActiveControl as TStringGrid).Cells[col,0] + ''' nicht gefunden weden.' + NL +
      'Achtung: GROSS/klein ist kriegsentscheidend!');
 
 
@@ -2606,7 +2720,8 @@ begin
    Jei;
    (* alte SQL sichern *)
    OldSQL := ZUpDateRid.SQL.Text;
-   ZUpDateRid.SQL.TEXT := 'UPDATE f2fsv SET TARIFVERSION=' + IntToStr(SpinEditTarifversion.Value) + ' WHERE (Bemerkung2=''AST'' OR MDEID=''Notfahrkarten'') AND DATUM>=' + QuotedStr('01.01.' + IntToStr(YearOf(DateEditVon.Date)));
+   ZUpDateRid.SQL.TEXT := 'UPDATE f2fsv SET TARIFVERSION=' + IntToStr(SpinEditTarifversion.Value) +
+   ' WHERE (Bemerkung2=''AST'' OR MDEID=''Notfahrkarten'') AND DATUM>=' + QuotedStr('01.01.' + IntToStr(YearOf(DateEditVon.Date)));
    ZUpDateRid.ExecSQL;
    ShowMessage('Anzahl betroffener Datensätze: ' + IntToStr(ZUpDateRid.RowsAffected));
    EventLog1.Log('AST Tarifversion wurde neu gesetzt mit: ' + ZUpDateRid.SQL.TEXT);
@@ -2668,6 +2783,7 @@ begin
       if Stoppit then
       begin
         ShowMessage('Aktion durch ESC-Taste abgebrochen!');
+        StoppIt:= false;
         exit;
       end;
 
@@ -2977,6 +3093,7 @@ begin
    ShowMessage('Sie haben Check-Linien seit ' + IntToStr(x) + ' Tagen nicht mehr ausgeführt' + NL +
    'Auch die TarifVersion für Anrufsammeltaxi sollte aktualisiert werden (Rechtsklick: Mehr/Setze bei AST die Tarifversion)'
    + NL +
+   'Ferner Rechtsklick: Mehr/Anrufsammeltaxi HTK und MTK ausführen!' + NL +
    'Bitte nachholen');
 
    ShowRecordCount(self);
@@ -3065,6 +3182,16 @@ begin
 
 end;
 
+procedure TForm1.BtnAddLine1Click(Sender: TObject);
+begin
+  (* Zeile hinzufügen *)
+  GridReplaceGattungsart.RowCount:= GridReplaceGattungsart.RowCount +1 ;
+  (* neue Zeile auswählen *)
+  GridReplaceGattungsart.Row := GridReplaceGattungsart.RowCount -1;
+  GridReplaceGattungsart.SetFocus ;
+
+end;
+
 procedure TForm1.BtnAddLineClick(Sender: TObject);
 begin
   (* Zeile hinzufügen *)
@@ -3072,6 +3199,14 @@ begin
   (* neue Zeile auswählen *)
   GridReplaceLineNumber.Row := GridReplaceLineNumber.RowCount -1;
   GridReplaceLineNumber.SetFocus ;
+end;
+
+procedure TForm1.BtnDelLine1Click(Sender: TObject);
+begin
+  GridReplaceGattungsart.SetFocus;
+  if Messagedlg('Soll die aktuelle Zeile: ' + GridReplaceGattungsart.Cells[GridReplaceGattungsart.Col, GridReplaceGattungsart.Row]  + ' wirklich gelöscht werden?',mtConfirmation,[mbYes,mbNo],0)= mrYes then
+  GridReplaceGattungsart.DeleteColRow(false,GridReplaceGattungsart.Row);
+
 end;
 
 procedure TForm1.BtnDelLineClick(Sender: TObject);
@@ -3088,11 +3223,20 @@ end;
 
 procedure TForm1.ApplicationProperties1Exception(Sender: TObject; E: Exception);
 begin
+
+  if (pos('01722',E.Message) > 0) then
+  begin
+     ShowMessage('Oracle Fehler 01722, wir versuchens mal mit analyze table, vielleicht hilfts ja?!');
+     AnalyzeTable('f2fsv');
+  end
+  else
+  begin
   ShowMessage('Mist ein Fehler:' + NL + NL + E.Message + NL + (* (Sender as TComponent).Name + *) NL +
     'Faks Spalte RID hat den Wert ' + RowID + NL + NL +
     'Oft hilft auch ein Neustart der Anwendung!!');
   (* Oracle LogFile anzeigen *)
-  OpenLogFileClick(Sender);
+  //OpenLogFileClick(Sender);
+  end;
 end;
 
 procedure TForm1.Button2Click(Sender: TObject);
@@ -3160,6 +3304,8 @@ begin
   (* Alle Liniennummern sammeln und anzeigen *)
   try
     Jei;
+    Application.ProcessMessages;
+
     lst := TStringList.Create;
     lst.Sorted := True;
     lst.Duplicates := dupIgnore;
@@ -3232,13 +3378,14 @@ procedure TForm1.DateEditVonAcceptDate(Sender: TObject; var ADate: TDateTime;
   var AcceptDate: boolean);
 begin
   try
+    jei;
     AcceptDate := True;
     (* Filter entfernen -> Daten neu einlesen *)
     RemoveFilterClick(Sender);
     StatusBar1.SimpleText :=
       'Filter wurde entfernt, bitte den SQL-Code ggf. kontrollieren!!';
   finally
-
+    Nei;
   end;
 end;
 
@@ -3261,6 +3408,8 @@ begin
         Amis := True
       else
         Amis := False;
+
+      Application.ProcessMessages;
 
 
       (* Tabelle nach Spalte RID aufsteigend sortieren *)
@@ -3471,8 +3620,17 @@ begin
             (* Sonderfall Anrufsammeltaxi OHNE Sortennummer *)
             if ((QFaks.FieldByName('MDEID').AsString='Notfahrkarten') and (QFaks.FieldByName('SORTENNUMMER').isNull)) then
             begin
-               if QFaks.FieldByName('GAIDENT').AsString = '29' then Dbf1.FieldByName('SORTE').AsString :='3300';
-               if QFaks.FieldByName('GAIDENT').AsString = '27' then Dbf1.FieldByName('SORTE').AsString :='3100';
+               //if QFaks.FieldByName('GAIDENT').AsString = '29' then Dbf1.FieldByName('SORTE').AsString :='3300';
+               //if QFaks.FieldByName('GAIDENT').AsString = '27' then Dbf1.FieldByName('SORTE').AsString :='3100';
+               //if QFaks.FieldByName('GAIDENT').AsString = '3' then Dbf1.FieldByName('SORTE').AsString :='300';
+               //if QFaks.FieldByName('GAIDENT').AsString = '18' then Dbf1.FieldByName('SORTE').AsString :='2000';
+               //if QFaks.FieldByName('GAIDENT').AsString = '16' then Dbf1.FieldByName('SORTE').AsString :='1800';
+               //if QFaks.FieldByName('GAIDENT').AsString = '54' then Dbf1.FieldByName('SORTE').AsString :='1201';
+
+               (* zu ersetzende Gattungsart nachschlagen *)
+               Dbf1.FieldByName('SORTE').AsString := LookUpStringGrid(GridReplaceGattungsart,QFaks.FieldByName('ID_F2MANDANT').AsString,QFaks.FieldByName('GAIDENT').AsString);
+               (* zur Kontrolle in Log schreiben *)
+               //EventLog1.Log('Bei RID ' + QFaks.FieldByName('RID').AsString  + ' wurde für Gattungsart ' + QFaks.FieldByName('GAIDENT').AsString + ' Sortennummer ' + Dbf1.FieldByName('SORTE').AsString + ' eingetragen');
             end
             else
             Dbf1.FieldByName('SORTE').AsString := QFaks.FieldByName('SORTENNUMMER').AsString;
@@ -3704,6 +3862,7 @@ procedure TForm1.ExportExcelClick(Sender: TObject);
 begin
   try
     jei;
+    Application.ProcessMessages;
     ExportDatasetToExcel(QFaks);
   finally
     nei;
@@ -3945,6 +4104,11 @@ begin
   (* LinienErsetzungen für AmisData DBF-Export speichern *)
   GridReplaceLineNumber.SaveToCSVFile(ChangeFileExt(Application.ExeName,'_ErsetzungLinienNummern.csv'),';');
 
+  (* GattungsartenErsetzungen für AmisData DBF-Export speichern *)
+  GridReplaceGattungsart.SaveToCSVFile(ChangeFileExt(Application.ExeName,'_ErsetzungGattungsarten.csv'),';');
+
+
+
 
   FreeAndNil(SQLHistory);
   FreeAndNil(RIDS_in_Selection);
@@ -3954,16 +4118,20 @@ end;
 procedure TForm1.JEi;
 begin
   screen.cursor := crHourglass;
+  Application.ProcessMessages;
 end;
 
 procedure TForm1.NEi;
 begin
   screen.cursor := crDefault;
+  Application.ProcessMessages;
 end;
 
 
 
-function TForm1.Verbinden: boolean;
+
+
+function TForm1.Verbinden(): boolean;
 var
   d, m, y, d1, m1, y1: word;
   (* Vormonat und VorVormonat!!!! *)
@@ -4180,6 +4348,9 @@ begin
       exit;
 
     Screen.ActiveControl.Invalidate;
+
+    Application.ProcessMessages;
+
 
      (* keine Ahnung wozu das mal nützlich sein sollte *)
     //(* Tabelle nach Spalte RID aufsteigend sortieren *)

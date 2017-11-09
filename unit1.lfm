@@ -1116,6 +1116,109 @@ object Form1: TForm1
             end
           end
         end
+        object GroupBox3: TGroupBox
+          Left = 682
+          Height = 206
+          Top = 1
+          Width = 442
+          Align = alLeft
+          AutoSize = True
+          Caption = 'Beim Export AST nach AmisData umzubenennende Gattungsarten:'
+          ClientHeight = 185
+          ClientWidth = 438
+          TabOrder = 2
+          object GridReplaceGattungsart: TStringGrid
+            Left = 0
+            Height = 157
+            Hint = '|In DBase Datei statt Spalte "Gattungsart"  Spalte  "ersetze Gattungsart mit" schreiben. Siehe auch die Datei "FAKS_Meldung_ErsetzungGattungsarten.csv"'
+            Top = 0
+            Width = 438
+            Align = alClient
+            AlternateColor = clMoneyGreen
+            AutoAdvance = aaRightDown
+            ColCount = 3
+            FixedCols = 0
+            Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goColSizing, goEditing, goAutoAddRows, goDblClickAutoSize, goSmoothScroll, goCellHints]
+            PopupMenu = PopupGridReplace
+            RowCount = 2
+            TabOrder = 0
+            TitleFont.CharSet = OEM_CHARSET
+            TitleFont.Quality = fqCleartype
+            TitleFont.Style = [fsBold]
+            ColWidths = (
+              64
+              87
+              187
+            )
+            Cells = (
+              6
+              0
+              0
+              'Mandant'
+              0
+              1
+              '5'
+              1
+              0
+              'Gattungsart'
+              1
+              1
+              '19'
+              2
+              0
+              'ersetze Gattungsart mit'
+              2
+              1
+              '3100'
+            )
+          end
+          object Panel9: TPanel
+            Left = 0
+            Height = 28
+            Top = 157
+            Width = 438
+            Align = alBottom
+            AutoSize = True
+            ClientHeight = 28
+            ClientWidth = 438
+            TabOrder = 1
+            object BtnAddLine1: TButton
+              AnchorSideTop.Side = asrCenter
+              Left = 1
+              Height = 26
+              Hint = '|ergänzt die Tabelle mit einer leeren Zeile'
+              Top = 1
+              Width = 132
+              AutoSize = True
+              Caption = 'Zeile hinzufügen'
+              OnClick = BtnAddLine1Click
+              TabOrder = 0
+            end
+            object BtnDelLine1: TButton
+              AnchorSideTop.Side = asrCenter
+              Left = 134
+              Height = 26
+              Hint = '|aktuelle Zeile löschen'
+              Top = 1
+              Width = 102
+              Caption = 'Zeile löschen'
+              OnClick = BtnDelLine1Click
+              TabOrder = 1
+            end
+            object BtnSearch1: TButton
+              AnchorSideTop.Side = asrCenter
+              Left = 241
+              Height = 26
+              Hint = '|in aktueller Spalte der Liste suchen'
+              Top = 1
+              Width = 132
+              AutoSize = True
+              Caption = 'in Spalte suchen'
+              OnClick = BtnSearchClick
+              TabOrder = 2
+            end
+          end
+        end
       end
     end
   end
@@ -1281,6 +1384,11 @@ object Form1: TForm1
         Caption = 'Setze bei AST die Tarifversion'
         Hint = '|setze bei Anrufsammeltaxi die aktuelle Tarifversion laut Jahr im Zeitraumauswahl'
         OnClick = MnSetAST_TarifVersionClick
+      end
+      object MnOraFixError: TMenuItem
+        Caption = 'ORA-01722 ungültige Zahl fixen'
+        Hint = '|Oracle Fehler ungültige Zahl beheben'
+        OnClick = MnOraFixErrorClick
       end
     end
   end

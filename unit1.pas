@@ -4233,9 +4233,9 @@ begin
       NL + 'Zahlart, Storno, DatumZeit, TarifVersion, NETZ, ORTStart, OrtZiel, PV, LfdNrPV, '
       + NL +
       'Storniert, Sortennummer, TZSTARTIDENT, TZZIELIDENT, TZVIAIDENT, HSTSTARTIDENT,HSTSTART, HSTZIELIDENT, HSTZIEL, VERTRIEBSHSTIDENT, Vertragsnr '
-      + NL + 'FROM F2FSV  WHERE ' + ExtraFilter + ' ID_F2MANDANT <> ''3'' AND (PV=''RMV'') AND TarifVersion >='
+      + NL + 'FROM F2FSV  WHERE ' + ExtraFilter + ' ID_F2MANDANT <> ''3'' AND (PV=''RMV'') AND TarifVersion >='''
       +
-      IntToStr(TarifVersion) + ' AND ((DATUM BETWEEN ' +
+      IntToStr(TarifVersion) + ''' AND ((DATUM BETWEEN ' +
       NL + '''' + DateTimeToStr(DateEditVon.Date) + ''' AND ' + NL +
       '''' + DateTimeToStr(DateEditBis.Date) + ''')' + NL +
       ' OR ( Vertragsnr is NULL AND DATUM <= ' + NL + '''' +
@@ -4263,9 +4263,9 @@ begin
       ' a.PNR=b.PNR  ' + NL +
       ' AND ' + NL +
       ' a.ID_F2MANDANT=b.ID_F2MANDANT ) ' + NL +
-      ' WHERE ' + ExtraFilter + ' a.ID_F2MANDANT <> ''3'' AND (a.PV=''RMV'') AND a.TarifVersion >='
+      ' WHERE ' + ExtraFilter + ' a.ID_F2MANDANT <> ''3'' AND (a.PV=''RMV'') AND a.TarifVersion >='''
       +
-      IntToStr(TarifVersion) + ' AND ((a.DATUM BETWEEN ' +
+      IntToStr(TarifVersion) + ''' AND ((a.DATUM BETWEEN ' +
       NL + '''' + DateTimeToStr(DateEditVon.Date) + ''' AND ' + NL +
       '''' + DateTimeToStr(DateEditBis.Date) + ''')' + NL +
       ' OR ( a.Vertragsnr is NULL AND a.DATUM <= ' + NL + '''' +

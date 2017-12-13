@@ -153,9 +153,13 @@ begin
 end;
 
 procedure TForm2.BtnInsertFieldNamesClick(Sender: TObject);
-var FeldNamen : string;
+var FeldNamen, salias : string;
     x : integer;
 begin
+
+   (* FeldNamen ggf. den alias a. voranstellen *)
+   if Form1.cbSQL.Checked then salias:='a.'
+      else salias := '';
 
    (* ausgewählte FeldNamen in kommagetrennten String speichern *)
    for x := 0 to  CheckListBox1.Items.Count -1 do
@@ -164,9 +168,9 @@ begin
      begin
 
       if FeldNamen = '' then
-         FeldNamen := CheckListBox1.Items[x]
+         FeldNamen :=  salias + CheckListBox1.Items[x]
        else
-         FeldNamen := FeldNamen + ', ' + CheckListBox1.Items[x];
+         FeldNamen := FeldNamen + ', ' + salias + CheckListBox1.Items[x];
 
      end;
 

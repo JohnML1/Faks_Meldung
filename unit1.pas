@@ -208,6 +208,9 @@ type
     DeleteSelected: TMenuItem;
     MenuAddLinie: TMenuItem;
     LookupStornos: TMenuItem;
+    MnCheckTarifPreise: TMenuItem;
+    MnJumpToNewValue: TMenuItem;
+    MnSortBy: TMenuItem;
     MnOraFixError: TMenuItem;
     mnDelFilter: TMenuItem;
     mnLoadFilter: TMenuItem;
@@ -269,6 +272,8 @@ type
     ZConnection1: TZConnection;
     QFaks: TZReadOnlyQuery;
     ZCheckFields: TZReadOnlyQuery;
+    ZConnection2: TZConnection;
+    QPreisliste: TZReadOnlyQuery;
     ZUpDateRid: TZQuery;
     ZSQLMetadata1: TZSQLMetadata;
     ZSQLMonitor1: TZSQLMonitor;
@@ -282,6 +287,7 @@ type
     procedure BtnSearchClick(Sender: TObject);
     procedure Button2Click(Sender: TObject);
     procedure CbincMonthClick(Sender: TObject);
+    procedure cbSQLChange(Sender: TObject);
     procedure CheckLinieClick(Sender: TObject);
     procedure DateEditVonAcceptDate(Sender: TObject; var ADate: TDateTime;
       var AcceptDate: boolean);
@@ -321,10 +327,12 @@ type
     procedure MenuItem2Click(Sender: TObject);
     procedure MnAnrufsammeltaxisClick(Sender: TObject);
     procedure MNCheckLinieJeMandantClick(Sender: TObject);
+    procedure MnCheckTarifPreiseClick(Sender: TObject);
     procedure mnDelFilterClick(Sender: TObject);
     procedure MnFieldlistClick(Sender: TObject);
     procedure MnFixColumnClick(Sender: TObject);
     procedure MnGroupValuesClick(Sender: TObject);
+    procedure MnJumpToNewValueClick(Sender: TObject);
     procedure mnLoadFilterClick(Sender: TObject);
     procedure MnManuelleBuchungenClick(Sender: TObject);
     procedure MnMarkExportedClick(Sender: TObject);
@@ -333,6 +341,7 @@ type
     procedure MnSearchClick(Sender: TObject);
     procedure MnSetAST_TarifVersionClick(Sender: TObject);
     procedure MnShowRecordCountClick(Sender: TObject);
+    procedure MnSortByClick(Sender: TObject);
     procedure MnSucheLinienClick(Sender: TObject);
     procedure MnSumColumnClick(Sender: TObject);
     procedure OpenLogFileClick(Sender: TObject);
@@ -2453,6 +2462,125 @@ begin
   LinieJeMandant(Sender);
 end;
 
+procedure TForm1.MnCheckTarifPreiseClick(Sender: TObject);
+var RID : string;
+begin
+ (* mit Sortennumemer, Einzelpreis, PeisStDruck und Tarifversion in Amisdata Tabelle Preisliste
+    den aktuellen Preis nachschlagen und bei Differenz den Datensatz rausfiltern *)
+  try
+  jei;
+  if not ZConnection2.Connected then
+    begin
+      ZConnection2.Connect;
+      QPreisliste.Active:=true;
+    end;
+
+    BM := QFaks.GetBookmark;
+
+    QFaks.DisableControls;
+
+    ProgressBar1.Position:=0;
+    ProgressBar1.Max:= QFaks.RecordCount;
+
+    QFaks.First;
+
+    while not QFaks.EOF do
+    begin
+      (* Wenn Feld.IsNull überspringen *)
+      if (QFaks.FieldByName('Sortennummer').IsNull
+          or
+          QFaks.FieldByName('Einzelpreis').IsNull
+          or
+          QFaks.FieldByName('TarifVersion').IsNull
+          or
+          QFaks.FieldByName('PreisStDruck').IsNull
+          or
+          QFaks.FieldByName('Sortennummer').IsNull
+          or
+          (length(QFaks.FieldByName('PreisStIdent').Value) > 2)
+          or
+          QFaks.FieldByName('Betrag').Value < 0
+          ) then
+          begin
+           QFaks.Next;
+           continue;
+          end;
+
+      if QFaks.FieldByName('Einzelpreis').AsCurrency <>
+         QPreisliste.Lookup('RMVTarifNr,Gattungsart,Preisstufe',VarArrayOf([
+         SpinEditTarifversion.Value,QFaks.FieldByName('Sortennummer').AsInteger,
+         QFaks.FieldByName('PreisStDruck').AsInteger]),'FAHRPREIS')
+         then
+      begin
+         (* zwecks Kontrolle in FAKS_Meldung_DBase_Exporte.log schreiben *)
+         //if QFaks.FieldByName('Einzelpreis').AsCurrency = 2.6 then
+         //EventLog1.Log('RID=' + QuotedStr(QFaks.FieldByName('RID').AsString)+ ' | ' + 'Einzelpreis=' +
+         //    QFaks.FieldByName('Einzelpreis').AsString + ' | ' + 'Fahrpreis=' + FormatFloat('#,##0.00',
+         //    QPreisliste.Lookup('RMVTarifNr,Gattungsart,Preisstufe',VarArrayOf([
+         //QFaks.FieldByName('TarifVersion').AsInteger,QFaks.FieldByName('Sortennummer').AsInteger,
+         //QFaks.FieldByName('PreisStDruck').AsInteger]),'FAHRPREIS'))
+         //+ ' | ' + 'TarifVersion=' + QFaks.FieldByName('TarifVersion').AsString + ' | ' + 'Sortennummer=' +
+         //QFaks.FieldByName('Sortennummer').AsString + ' | ' + 'PreisStDruck=' + QFaks.FieldByName('PreisStDruck').AsString
+         //);
+
+         if RID='' then
+           RID := 'RID=' + QuotedStr(QFaks.FieldByName('RID').AsString)
+         else
+           RID := RID +  ' OR RID=' + QuotedStr(QFaks.FieldByName('RID').AsString);
+
+         QFaks.Next;
+         ProgressBar1.Position:=QFaks.RecNo;
+         Application.ProcessMessages;
+
+         continue;
+
+      end;
+
+      QFaks.Next;
+
+   end;
+
+    QFaks.EnableControls;
+
+    if RID<>'' then
+    begin
+
+    QFaks.Filter:=RID;
+
+    QFaks.Filtered := True;
+
+    (* nur zur Liste hinzufügen, falls noch nicht darin enthalten *)
+    AddFilterHistory(RID);
+    ShowFilterInfo(true);
+
+    ShowRecordCount(Sender);
+
+    Application.ProcessMessages;
+
+
+     ShowMessage('Bei den angezeigten ' + IntToStr(QFaks.RecordCount) + ' Datensätzen entspricht der Preis nicht der '
+     + 'Tarifversion ' + SpinEditTarifversion.Caption);
+    end
+    else
+    begin
+     Nei;
+     ShowMessage('Alles ok' + NL + NL + 'Alle Preise stehen so auch in AmisData');
+    end;
+
+    if QFaks.BookmarkValid(BM) then
+    begin
+      QFaks.GotoBookmark(BM);
+      QFaks.FreeBookmark(BM);
+    end;
+
+
+  finally
+    Nei;
+    ProgressBar1.Position:=0;
+    Application.ProcessMessages;
+  end;
+end;
+
 procedure TForm1.mnDelFilterClick(Sender: TObject);
 begin
   RemoveFilterClick(Sender);
@@ -2532,6 +2660,38 @@ begin
 
   end;
 
+end;
+
+procedure TForm1.MnJumpToNewValueClick(Sender: TObject);
+var val : string;
+begin
+  try
+  (* zum Ende der Werteliste gehen *)
+   val := DBGridFaks.SelectedField.AsString;
+
+   QFaks.DisableControls;
+
+   (* damit nur eine Zeile markiert aussieht *)
+   DBGridFaks.Options:=DBGridFaks.Options -[dgMultiselect];
+
+   while not QFaks.EOF do
+   begin
+
+     Application.ProcessMessages;
+
+     if DBGridFaks.SelectedField.AsString <> val then break;
+
+     QFaks.Next;
+
+   end;
+
+   Application.ProcessMessages;
+   DBGridFaks.SetFocus;
+
+   finally
+     DBGridFaks.Options:=DBGridFaks.Options +[dgMultiselect];
+     QFaks.EnableControls;
+   end;
 end;
 
 procedure TForm1.mnLoadFilterClick(Sender: TObject);
@@ -2737,6 +2897,19 @@ end;
 procedure TForm1.MnShowRecordCountClick(Sender: TObject);
 begin
    ShowMessage('Angezeigt werden ' + FormatFloat('#,##0',QFaks.RecordCount) + ' Datensätze.');
+end;
+
+procedure TForm1.MnSortByClick(Sender: TObject);
+begin
+  try
+   Jei;
+   (* Sortierung *)
+   QFaks.SortedFields:='GATTUNGSART, PreisStDruck, Betrag';
+   QFaks.First;
+   DBGridFaks.SelectedField := QFaks.FieldByName('Gattungsart');
+  finally
+    Nei;
+  end;
 end;
 
 procedure TForm1.MnSucheLinienClick(Sender: TObject);
@@ -3052,7 +3225,11 @@ end;
 procedure TForm1.UniqueInstance1OtherInstance(Sender: TObject;
   ParamCount: integer; Parameters: array of string);
 begin
-  ShowMessage('Duplikat! ' + NL + NL + Application.ExeName);
+  (* Anwendung wurde doppelt gestartet: *)
+  ShowMessage('Das Programm läuft bereits!' + NL + NL +
+    QuotedStr(ExtractFileName(Application.ExeName)) + NL + NL +
+  'Die Anwendung kann nicht mehrfach gestartet werden.! ');
+
   if WindowState = wsMinimized then
     Application.Restore
   else
@@ -3294,11 +3471,19 @@ begin
   end;
 end;
 
+procedure TForm1.cbSQLChange(Sender: TObject);
+begin
+   (* Hinweis, wenn tatsächlich CheckBox Wert geändert wurde und nicht nur ini eingelesen *)
+   if ((PageControl1.ActivePage = TabConfig) and (pos('Datensätze',Form1.lbRecordCount.Caption) > 0)) then
+   ShowMessage('Bitte die Anwendung neu starten, der SQL-Code muß neu erzeugt werden!');
+end;
+
 procedure TForm1.CheckLinieClick(Sender: TObject);
 var
   x, y: integer;
   lst: TStringList;
 begin
+
   if not QFaks.Active then
     exit;
   (* Alle Liniennummern sammeln und anzeigen *)

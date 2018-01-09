@@ -421,6 +421,7 @@ var
   jconnected: boolean = False;
   StoppIt: boolean = False;
   FirstRun: boolean = False;
+  ShowAgain: boolean = true;
   BM: TBookmark;
   abort: boolean = False;
   gesucht: variant;
@@ -2464,6 +2465,7 @@ end;
 
 procedure TForm1.MnCheckTarifPreiseClick(Sender: TObject);
 var RID : string;
+    list : TStringLIst;
 begin
  (* mit Sortennumemer, Einzelpreis, PeisStDruck und Tarifversion in Amisdata Tabelle Preisliste
     den aktuellen Preis nachschlagen und bei Differenz den Datensatz rausfiltern *)
@@ -2486,6 +2488,8 @@ begin
 
     while not QFaks.EOF do
     begin
+      StatusBar1.SimpleText:= 'Datensatz: ' + IntToStr(QFaks.RecNo);
+      Application.ProcessMessages;
       (* Wenn Feld.IsNull überspringen *)
       if (QFaks.FieldByName('Sortennummer').IsNull
           or
@@ -2499,7 +2503,9 @@ begin
           or
           (length(QFaks.FieldByName('PreisStIdent').Value) > 2)
           or
-          QFaks.FieldByName('Betrag').Value < 0
+          (QFaks.FieldByName('Betrag').Value < 0)
+          or
+          (QFaks.FieldByName('Datum').AsDateTime > StrToDate('10.12.' + IntToStr(Yearof(DateEditBis.Date))))
           ) then
           begin
            QFaks.Next;
@@ -2545,6 +2551,25 @@ begin
     if RID<>'' then
     begin
 
+    if (Length(RID) > 3000) then
+    begin
+      try
+        List := TStringList.Create;
+        List.Add('Bei diesen Datensaetzen passt der Preis nicht zur Tarifversion: ' + IntToStr(SpinEditTarifversion.Value));
+        List.Add('');
+        List.Add(RID);
+        List.SaveToFile(ExePath + 'Faks_Meldung_falscher_Preis.txt');
+        Nei;
+        OpenUrl(ExePath + 'Faks_Meldung_falscher_Preis.txt');
+
+      finally
+        FreeAndNil(List);
+        RID := '';
+
+      end;
+       exit;
+    end;
+
     QFaks.Filter:=RID;
 
     QFaks.Filtered := True;
@@ -2564,7 +2589,7 @@ begin
     else
     begin
      Nei;
-     ShowMessage('Alles ok' + NL + NL + 'Alle Preise stehen so auch in AmisData');
+     ShowMessage('Alles ok' + NL + NL + 'Alle Preise stehen so auch in AmisData für Tariversion:  '+ IntToStr(SpinEditTarifversion.Value));
     end;
 
     if QFaks.BookmarkValid(BM) then
@@ -4250,8 +4275,9 @@ begin
 
   (* nur so als Test für git push *)
 
-  if  j <> TarifVersion then
+  if  ((j <> TarifVersion) and ShowAgain and (MonthOf(Date) > 1 )) then
   begin
+     ShowAgain := false;
      PageControl1.ActivePage := TabConfig;
      SpinEditTarifversion.SetFocus;
      ShowMessage('Die Tarifverion: ' + IntToStr(TarifVersion) + ' scheint nicht zu stimmen.' + NL +

@@ -85,14 +85,14 @@ http://forum.lazarus.freepascal.org/index.php/topic,20305.msg117063.html#msg1170
 interface
 
 uses
-  locale_de, my_utils,  LCLIntf, UniqueInstance, Classes, SysUtils,
-  DB, dbf, FileUtil, SynHighlighterSQL, SynEdit, RTTIGrids, LResources, Forms,
-  Controls, Graphics, Dialogs, ComCtrls, Menus, IniPropStorage, ExtCtrls,
-  DBCtrls, DBGrids, StdCtrls, EditBtn, AsyncProcess, ZConnection, ZDataset,
-  ZSqlMonitor, ZSqlMetadata, Interfaces, dateutils, comobj, variants, LCLType,
+  locale_de, my_utils, LCLIntf, UniqueInstance, Classes, SysUtils, DB, dbf,
+  FileUtil, SynHighlighterSQL, SynEdit, RTTIGrids, LResources, Forms, Controls,
+  Graphics, Dialogs, ComCtrls, Menus, IniPropStorage, ExtCtrls, DBCtrls,
+  DBGrids, StdCtrls, EditBtn, AsyncProcess, ZConnection, ZDataset, ZSqlMonitor,
+  ZSqlMetadata, Interfaces, dateutils, comobj, variants, LCLType,
   ZAbstractRODataset, JwaWindows, ShellApi, StrUtils, PropertyStorage, Spin,
-  Grids, fpsexport,  INIFiles, eventlog, resource, versiontypes,
-  versionresource, fpDBExport, sqldb;
+  Grids, ExtDlgs, FileCtrl, fpsexport, INIFiles, eventlog, resource,
+  versiontypes, versionresource, fpDBExport, sqldb;
 
 type
   //Letters = array ['A'..'Z']  of String;

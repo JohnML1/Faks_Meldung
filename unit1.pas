@@ -2489,6 +2489,7 @@ begin
     while not QFaks.EOF do
     begin
       StatusBar1.SimpleText:= 'Datensatz: ' + IntToStr(QFaks.RecNo);
+      ProgressBar1.Position:=QFaks.RecNo;
       Application.ProcessMessages;
       (* Wenn Feld.IsNull überspringen *)
       if (QFaks.FieldByName('Sortennummer').IsNull
@@ -3594,8 +3595,10 @@ begin
     RemoveFilterClick(Sender);
     StatusBar1.SimpleText :=
       'Filter wurde entfernt ...';
+    Application.ProcessMessages;
   finally
     Nei;
+    Application.ProcessMessages;
   end;
 end;
 

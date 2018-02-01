@@ -980,6 +980,7 @@ function TForm1.ShowFilterInfo(Warning: boolean): boolean;
 begin
   //if ((trim(FilterCombo.Text) = '') or (not QFaks.Filtered)) then Warning := False;
 
+
   if Warning then
   begin
     FilterCombo.Color := ClRed;
@@ -991,8 +992,13 @@ begin
     FilterCombo.Font.Color := clDefault;
   end;
 
+  ShowRecordCount(nil);
+
   (* jetzt wirklich anzeigen? *)
   FilterCombo.Invalidate;
+  FilterCombo.Refresh;
+  Application.ProcessMessages;
+  Application.MainForm.Invalidate;
   Application.ProcessMessages;
 end;
 
@@ -2300,7 +2306,7 @@ begin
       DateEditBis.Text + ' wurden:' + NL + FormatFloat('#,##0', x / 2) +
       ' von ' + IntToStr(y) + ' Fahrscheinen storniert.' + NL + 'Das entspricht ' +
       FormatFloat('#,##0.00 %', ((x / 2) / y) * 100) + NL + 'Summe: ' +
-      FormatFloat('#,##0.00', Betrag));
+      FormatFloat('#,##0.00', Betrag) + NL + NL + 'Der Filter wurde kopiert!');
 
 
   finally
@@ -2726,6 +2732,7 @@ var OldFilters : TStringList;
 begin
 
   try
+   Jei;
    (* vorhandene Filter sichern *)
    OldFilters := TStringList.Create;
 
@@ -2747,7 +2754,13 @@ begin
 
    end;
 
+   QFaks.Filter:=FilterCombo.Items[0];
+   QFaks.Filtered:=true;
+   FilterCombo.Text:=FilterCombo.Items[0];
+   ShowFilterInfo(True);
+
    finally
+     Nei;
      FreeAndNil(OldFilters);
 
    end;

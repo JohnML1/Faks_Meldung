@@ -1655,6 +1655,13 @@ begin
             IntToStr(YearOf(DateEDitBis.Date)) + ' bis ' + DateEDitBis.Text);
           Betrag.Add('');
 
+          Titel.Add('');
+          Betrag.Add('');
+
+          Titel.Add('Achtung: TarifNummer ist auch eine böse Falle!! Aktuell ist sie: ' + IntToStr(SpinEditTarifversion.Value));
+          Betrag.Add('');
+
+
 
           ShowFormSum(Titel, Betrag);
 
@@ -3602,6 +3609,10 @@ procedure TForm1.DateEditVonAcceptDate(Sender: TObject; var ADate: TDateTime;
   var AcceptDate: boolean);
 begin
   try
+    //ShowMessage(FormatDateTime('dd.mm.yyyy',ADate));
+    if Yearof(Date) <> YearOf(ADate) then
+       ShowMessage('Achtung: Sie untersuchen nicht mehr das aktuelle Jahr!' + NL + NL +
+       'Bedenken Sie die Auswirkung der Tarifversion auf Seite ''Einstellungen'' im SQL-Ausdruck!!!');
     jei;
     AcceptDate := True;
     (* Filter entfernen -> Daten neu einlesen *)
